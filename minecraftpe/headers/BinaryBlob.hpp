@@ -3,6 +3,6 @@
 
 struct BinaryBlob
 {
-	void* ptr1;
+	char* ptr1;
 	int32_t field_4;
 };

@@ -23,9 +23,6 @@ ArmorScreen::ArmorScreen()
 	, field_118(2)
 	, field_148(3)
 	, header(5, "Armor") {
-	this->field_58 = 0;
-	this->field_5C = 0;
-	this->field_60 = 0;
 	this->field_64 = "";
 	this->field_7C = 90.0;
 	this->field_1BC = 0;
@@ -224,8 +221,6 @@ ArmorScreen::~ArmorScreen() {
 	if(this->field_1F4) delete this->field_1F4;
 	if(this->field_1F8) delete this->field_1F8;
 	if(this->field_1FC) delete this->field_1FC;
-
-	if(this->field_58) delete this->field_58;
 }
 void ArmorScreen::render(int32_t a2, int32_t a3, float a4) {
 	int32_t v8;			 // r3

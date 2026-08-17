@@ -11,8 +11,7 @@ struct Tesselator;
 struct Player;
 struct ArmorScreen: Screen, Touch::IInventoryPaneCallback
 {
-	void* field_58;
-	int32_t field_5C, field_60;
+	std::vector<int> field_58; //TODO check type
 	std::string field_64;
 	ItemInstance field_68;
 	float field_7C;

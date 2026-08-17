@@ -138,13 +138,13 @@ MeshBuffer::VertexFormat::VertexFormat(void){
 }
 
 void MeshBuffer::VertexFormat::bindArrays() const{
-	glVertexPointer(3, 0x1406, this->stride, (void*) this->offsets[0]);
+	glVertexPointer(3, GL_FLOAT, this->stride, (void*) this->offsets[0]);
 	uint8_t texOffset = this->offsets[1];
-	if(texOffset != 255) glTexCoordPointer(2, 0x1406, this->stride, (void*) texOffset);
+	if(texOffset != 255) glTexCoordPointer(2, GL_FLOAT, this->stride, (void*) texOffset);
 	uint8_t colOffset = this->offsets[2];
-	if(colOffset != 255) glColorPointer(4, 0x1401, this->stride, (void*) colOffset);
+	if(colOffset != 255) glColorPointer(4, GL_UNSIGNED_BYTE, this->stride, (void*) colOffset);
 	uint8_t normOffset = this->offsets[3];
-	if(normOffset != 255) glNormalPointer(0x1400, this->stride, (void*) normOffset);
+	if(normOffset != 255) glNormalPointer(GL_BYTE, this->stride, (void*) normOffset);
 }
 
 void MeshBuffer::VertexFormat::enableField(MeshBuffer::VertexFormat::Field f){
