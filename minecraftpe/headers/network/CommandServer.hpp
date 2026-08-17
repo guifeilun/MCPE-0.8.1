@@ -33,7 +33,7 @@ struct CommandServer
 	void _updateClients();
 	void dispatchPacket(Packet&);
 	bool_t handleCheckpoint(bool_t);
-	void handleEventPollMessage(ConnectedClient&, const std::string&);
+	std::string handleEventPollMessage(ConnectedClient&, const std::string&);
 	std::string handleSetSetting(const std::string&, int32_t);
 	bool_t init(int16_t);
 	std::string parse(ConnectedClient&, const std::string&);

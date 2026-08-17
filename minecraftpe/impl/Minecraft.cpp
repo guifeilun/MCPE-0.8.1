@@ -1,13 +1,16 @@
 #include <Minecraft.hpp>
-#include <ExternalServerFile.hpp>
+#include <ICreator.hpp>
 #include <ExternalServer.hpp>
+#include <ExternalServerFile.hpp>
 #include <cpputils.hpp>
 #include <entity/LocalPlayer.hpp>
+#include <entity/MobFactory.hpp>
 #include <entity/player/User.hpp>
 #include <entity/player/gamemode/CreativeMode.hpp>
 #include <entity/player/gamemode/SurvivalMode.hpp>
 #include <gui/screens/DeathScreen.hpp>
 #include <gui/screens/PauseScreen.hpp>
+#include <gui/screens/RenameMPLevelScreen.hpp>
 #include <input/BuildActionIntention.hpp>
 #include <input/ControllerTurnInput.hpp>
 #include <input/CustomInputHolder.hpp>
@@ -20,16 +23,24 @@
 #include <level/ServerLevel.hpp>
 #include <level/chunk/LevelChunk.hpp>
 #include <level/gen/ChunkSource.hpp>
+#include <level/storage/LevelStorage.hpp>
 #include <level/storage/LevelStorageSource.hpp>
 #include <network/ClientSideNetworkHandler.hpp>
 #include <network/CommandServer.hpp>
 #include <network/RakNetInstance.hpp>
+#include <network/ServerCommandParser.hpp>
 #include <network/ServerSideNetworkHandler.hpp>
+#include <network/mco/LoginInformation.hpp>
+#include <network/mco/MCOParser.hpp>
+#include <network/mco/MCOStringify.hpp>
 #include <network/mco/MojangConnector.hpp>
+#include <network/mco/RestRequestJob.hpp>
 #include <network/packet/InteractPacket.hpp>
 #include <network/packet/RespawnPacket.hpp>
 #include <perf/PerfTimer.hpp>
 #include <perf/Stopwatch.hpp>
+#include <rendering/EntityRenderDispatcher.hpp>
+#include <rendering/Font.hpp>
 #include <rendering/GLBufferPool.hpp>
 #include <rendering/GameRenderer.hpp>
 #include <rendering/ItemInHandRenderer.hpp>
@@ -41,21 +52,10 @@
 #include <tile/Tile.hpp>
 #include <util/CMutex.hpp>
 #include <util/CThread.hpp>
-#include <util/SharedConstants.hpp>
-#include <utils.h>
-#include <gui/screens/RenameMPLevelScreen.hpp>
-#include <level/storage/LevelStorage.hpp>
-#include <rendering/Font.hpp>
-#include <network/ServerCommandParser.hpp>
-#include <entity/MobFactory.hpp>
-#include <rendering/EntityRenderDispatcher.hpp>
-#include <cpputils.hpp>
-#include <network/mco/LoginInformation.hpp>
-#include <network/mco/MCOStringify.hpp>
 #include <util/Common.hpp>
-#include <network/mco/RestRequestJob.hpp>
+#include <util/SharedConstants.hpp>
 #include <util/Util.hpp>
-#include <network/mco/MCOParser.hpp>
+#include <utils.h>
 
 char_t* Minecraft::progressMessages[] = {"Locating server", "Building terrain", "Preparing", "Saving chunks", "Waiting for Minecraft Realms"};
 
@@ -235,7 +235,7 @@ void Minecraft::generateLevel(const std::string& a2, struct Level* a3) {
 	v6.print("Level generated: ");
 	this->field_CF4 = 0;
 }
-int32_t Minecraft::getCreator(void) { //TODO returns ICreator* ?
+ICreator* Minecraft::getCreator(void) {
 	return 0;
 }
 struct LevelStorageSource* Minecraft::getLevelSource(void) {

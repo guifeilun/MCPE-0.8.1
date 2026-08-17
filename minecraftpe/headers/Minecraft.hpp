@@ -90,7 +90,7 @@ struct Minecraft : App{
 	void connectToMCOServer(const std::string&, const std::string&, uint16_t);
 	void gameLostFocus(void);
 	void generateLevel(const std::string&, struct Level*);
-	int32_t getCreator(void);
+	struct ICreator* getCreator(void);
 	struct LevelStorageSource* getLevelSource(void);
 	int32_t getLicenseId(void);
 	char_t* getProgressMessage(void);

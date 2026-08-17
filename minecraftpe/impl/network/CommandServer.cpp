@@ -6,6 +6,9 @@
 #include <level/Level.hpp>
 #include <network/ConnectedClient.hpp>
 #include <nbt/Tag.hpp>
+#include <ICreator.hpp>
+#include <network/ConnectedClient.hpp>
+#include <network/packet/AdventureSettingsPacket.hpp>
 
 //not used in 0.8.1, pain to implement
 std::string CommandServer::Ok = "\n", CommandServer::Fail = "Fail\n";
@@ -64,21 +67,43 @@ bool_t CommandServer::handleCheckpoint(bool_t a2){
 	//TODO implement
 	return 0;
 }
-void CommandServer::handleEventPollMessage(ConnectedClient&, const std::string&){
+std::string CommandServer::handleEventPollMessage(ConnectedClient& client, const std::string& event) {
+	ICreator* creator = this->minecraft->getCreator();
+	if(!creator) {
+		return CommandServer::Fail;
+	}
+	if(std::operator==(event, "events.clear")) {
+		int time = this->minecraft->level->getTime();
+		client.time = time;
+		//returns some empty string?
+		return Tag::NullString; //not exactly Tag::NullString, but the offset is very close~ - check later?
+	}
+	if(!std::operator==(event, "events.block.hits")) {
+		return CommandServer::Fail;
+	}
+	std::stringstream st;
+	creator->getEventList()->write(st, this->posTranslator, client.time);
+	client.time = this->minecraft->level->getTime();
+	st << "\n";
+	return st.str();
 
-	printf("CommandServer::handleEventPollMessage - not implemented\n");
-	//TODO implement
 }
+
+void updateAdventureSettingFlag(Minecraft*, AdventureSettingsPacket::Flags, bool){
+	printf("CommandServer updateAdventureSettingFlag - not implemented\n");
+}
+
 std::string CommandServer::handleSetSetting(const std::string& a2, int32_t a3) {
-	bool_t v5 = a3 ? 1 : 0;
+	bool v5 = a3 ? 1 : 0;
 	if(a2 == "autojump") this->minecraft->player->allowAutojump = a3;
 	if(a2 == "nametags_visible"){
-
+		updateAdventureSettingFlag(this->minecraft, AdventureSettingsPacket::Flags::AS_FIELD_5, v5);
 	}
-	//TODO updateAdventureSettingFlag
-	printf("CommandServer::handleSetSetting - not implemented\n");
-	//TODO implement
-	return Tag::NullString;
+	if(a2 == "world_immutable"){
+		updateAdventureSettingFlag(this->minecraft, AdventureSettingsPacket::Flags::AS_ALLOW_INTERACT, v5);
+	}
+	//the original method might be slightly different?
+	return Tag::NullString; //not exactly Tag::NullString, but the offset is very close~ - check later?
 }
 bool_t CommandServer::init(int16_t a2) {
 	this->_close();

@@ -35,10 +35,6 @@ bool_t LeafTile::isSolidRender() {
 }
 void LeafTile::tick(Level* level, int32_t x, int32_t y, int32_t z, Random* random) {
 	//TODO fix this
-	int32_t v10;			   // r10
-	int32_t v11;			   // r0
-	int32_t v12;			   // r3
-	int32_t zz;				   // r12
 	int32_t* treeBlocksNearby; // r10
 	int32_t* v15;			   // r11
 	int32_t* v16;			   // r11
@@ -55,93 +51,69 @@ void LeafTile::tick(Level* level, int32_t x, int32_t y, int32_t z, Random* rando
 	int32_t yy;				   // [sp+14h] [bp-44h]
 	int32_t v29;			   // [sp+18h] [bp-40h]
 	int32_t v30;			   // [sp+1Ch] [bp-3Ch]
-	int32_t xx;				   // [sp+20h] [bp-38h]
-	int32_t v32;			   // [sp+24h] [bp-34h]
+	int32_t data;			   // [sp+24h] [bp-34h]
 
 	if(!level->isClientMaybe) {
-		v32 = level->getData(x, y, z);
-		if((v32 & 0xC) == 4) {
+		int data = level->getData(x, y, z);
+		if((data & 0xC) == 4) {
+			//taken from b1.2_02-20110517
+			const int yzo = 32 * 32;
+			const int co = 32 / 2;
 			if(!this->treeBlocksNearby) {
-				this->treeBlocksNearby = new int[0x8000];
+				this->treeBlocksNearby = new int[32 * 32 * 32];
+				//mojang forgot to fill this array with zeros?
+				//for(int i = 0; i < 32 * 32 * 32; ++i) this->treeBlocksNearby[i] = 0;
 			}
-			if(level->hasChunksAt(x - 5, y - 5, z - 5, x + 5, y + 5, z + 5)) {
-				v10 = 384;
-				xx = x - 4;
-				do {
-					for(yy = -4; yy != 5; ++yy) {
-						zz = -4;
-						v30 = ((yy + v10) << 7) + 2096;
-						do {
-							v29 = zz;
-							v11 = level->getTile(xx, yy + y, zz + z);
-							if(v11 == Tile::treeTrunk->blockID) {
-								this->treeBlocksNearby[v30 / 4] = 0;
-								// *(int*)((char*)this->treeBlocksNearby + v30) = 0;
-							} else {
-								if(v11 == Tile::leaves->blockID) {
-									v12 = -2;
-								} else {
-									v12 = -1;
-								}
-								this->treeBlocksNearby[v30 / 4] = v12;
-								// *(int*)((char*)this->treeBlocksNearby + v30) = v12;
-							}
-							zz = v29 + 1;
-							v30 += 4;
-						} while(v29 != 4);
-					}
-					v10 += 32;
-					++xx;
-				} while(v10 != 672);
 
-				for(i = 1; i != 5; ++i) {
-					for(j = 384; j != 672; j += 32) {
-						v22 = 0;
-						v23 = (j << 7) + 1584;
-						do {
-							v20 = -4;
-							v21 = v23 + v22;
-							do {
-								treeBlocksNearby = this->treeBlocksNearby;
-								if(treeBlocksNearby[v21 / 4] == i - 1) {
-									if(treeBlocksNearby[(v21 - 4096) / 4] == -2) {
-										treeBlocksNearby[(v21 - 4096) / 4] = i;
+			if(level->hasChunksAt(x - 5, y - 5, z - 5, x + 5, y + 5, z + 5)) {
+				for(int xx = -4; xx <= 4; ++xx) {
+					for(int yy = -4; yy <= 4; ++yy) {
+						for(int zz = -4; zz <= 4; ++zz) {
+							int tile = level->getTile(x + xx, y + yy, z + zz);
+							if(tile == Tile::treeTrunk->blockID) this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + zz + co] = 0;
+							else if(tile == Tile::leaves->blockID) this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + zz + co] = -2;
+							else this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + zz + co] = -1;
+						}
+					}
+				}
+				for(int type = 1; type <= 4; ++type) {
+					for(int xx = -4; xx <= 4; ++xx) {
+						for(int yy = -4; yy <= 4; ++yy) {
+							for(int zz = -4; zz <= 4; ++zz) {
+								if(this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + zz + co] == type - 1) {
+									if(this->treeBlocksNearby[(((xx + co) - 1) * yzo) + ((yy + co) * 32) + zz + co] == -2) {
+										this->treeBlocksNearby[(((xx + co) - 1) * yzo) + ((yy + co) * 32) + zz + co] = type;
 									}
-									v15 = this->treeBlocksNearby;
-									if(v15[(v21 + 4096) / 4] == -2) {
-										v15[(v21 + 4096) / 4] = i;
+									if(this->treeBlocksNearby[(((xx + co) + 1) * yzo) + ((yy + co) * 32) + zz + co] == -2) {
+										this->treeBlocksNearby[(((xx + co) + 1) * yzo) + ((yy + co) * 32) + zz + co] = type;
 									}
-									v16 = this->treeBlocksNearby;
-									if(v16[(v21 - 128) / 4] == -2) {
-										v16[(v21 - 128) / 4] = i;
+
+									if(this->treeBlocksNearby[((xx + co) * yzo) + (((yy + co) - 1) * 32) + zz + co] == -2) {
+										this->treeBlocksNearby[((xx + co) * yzo) + (((yy + co) - 1) * 32) + zz + co] = type;
 									}
-									v17 = this->treeBlocksNearby;
-									if(v17[(v21 + 128) / 4] == -2) {
-										v17[(v21 + 128) / 4] = i;
+									if(this->treeBlocksNearby[((xx + co) * yzo) + (((yy + co) + 1) * 32) + zz + co] == -2) {
+										this->treeBlocksNearby[((xx + co) * yzo) + (((yy + co) + 1) * 32) + zz + co] = type;
 									}
-									v18 = this->treeBlocksNearby;
-									if(v18[(v21 - 4) / 4] == -2) {
-										v18[(v21 - 4) / 4] = i;
+
+									if(this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + ((zz + co) - 1)] == -2) {
+										this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + ((zz + co) - 1)] = type;
 									}
-									v19 = this->treeBlocksNearby;
-									if(v19[(v21 + 4) / 4] == -2) {
-										v19[(v21 + 4) / 4] = i;
+									if(this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + ((zz + co) + 1)] == -2) {
+										this->treeBlocksNearby[((xx + co) * yzo) + ((yy + co) * 32) + ((zz + co) + 1)] = type;
 									}
 								}
-								++v20;
-								v21 += 4;
-							} while(v20 != 5);
-							v22 += 128;
-						} while(v22 != 1152);
+							}
+						}
 					}
 				}
 			}
-			if(this->treeBlocksNearby[16912] < 0) {
+			if(this->treeBlocksNearby[(co * yzo) + (co * 32) + co] < 0) {
+				//call this->die ?
 				v27 = level->getData(x, y, z);
 				this->spawnResources(level, x, y, z, v27 & 3, 0.0);
 				level->setTile(x, y, z, 0, 3);
 			} else {
-				level->setDataNoUpdate(x, y, z, v32 & 0xFFFFFFFB);
+				level->setDataNoUpdate(x, y, z, data & 0xFFFFFFFB);
 			}
 		}
 	}
@@ -195,7 +167,7 @@ void LeafTile::spawnResources(Level* level, int32_t x, int32_t y, int32_t z, int
 			v12 = this->getSpawnResourcesAuxValue(meta);
 			this->popResource(level, x, y, z, ItemInstance(v13, 1, v12));
 		}
-		if(!(meta << 30) && !(p_random->genrand_int32() % 0xC8)) {
+		if(!(meta << 30) && (p_random->genrand_int32() % 0xC8) == 0) {
 			this->popResource(level, x, y, z, ItemInstance(Item::apple, 1, 0));
 		}
 	}
