@@ -21,10 +21,7 @@ struct ICreator
 	//seems like ICreator::EventList was inlined in later versions, the first entry here is ICreator::getEventList ?
 
 	template<typename T>
-	struct EventList;
-
-	template<>
-	struct EventList<ICreator::TileEvent>
+	struct EventList
 	{
 		int field_0;
 		int count;
@@ -32,11 +29,10 @@ struct ICreator
 		struct
 		{ //TODO check what type does this thing have
 			int time;
-			ICreator::TileEvent event;
+			T event;
 		}* events;
 		void write(std::stringstream&, IPosTranslator&, int);
 	};
-
 
 	virtual ~ICreator();
 	virtual ICreator::EventList<ICreator::TileEvent>* getEventList();

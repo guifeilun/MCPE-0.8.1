@@ -10,6 +10,7 @@ void ICreator::TileEvent::write(std::stringstream& a2, IPosTranslator& a3) {
 	a2 << v13 << "," << v14 << "," << v15 << "," << this->field_10 << "," << this->field_0;
 }
 
+template<>
 void ICreator::EventList<ICreator::TileEvent>::write(std::stringstream& stream, IPosTranslator& tr, int clientTime) {
 	//TODO check does this actually work
 	int v13 = 0;
