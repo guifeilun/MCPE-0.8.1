@@ -42,7 +42,7 @@ static bool setNonBlocking(int a1){
 	int v2; // r2
 #ifdef _WIN32
 	unsigned long mode = 1;
-	return (ioctlsocket(fd, FIONBIO, &mode) == 0);
+	return (ioctlsocket(a1, FIONBIO, &mode) == 0);
 #else
 	v2 = fcntl(a1, F_GETFL, 0);
 	return v2 >= 0 && fcntl(a1, F_SETFL, v2 | O_NONBLOCK) == 0;
