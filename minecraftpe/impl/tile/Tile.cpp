@@ -204,6 +204,7 @@ Tile* Tile::info_reserved6;
 Tile* Tile::fire;
 
 std::string Tile::TILE_DESCRIPTION_PREFIX = "tile.";
+bool_t Tile::translucent[256] = {1, 0};
 
 bool_t Tile::shouldTick[256];
 bool_t Tile::isEntityTile[256];
@@ -211,7 +212,6 @@ bool_t Tile::solid[256];
 bool_t Tile::lightEmission[256];
 bool_t Tile::lightBlock[256];
 Tile* Tile::tiles[256];
-bool_t Tile::translucent[256] = {1, 0};
 std::shared_ptr<TextureAtlas> Tile::_terrainTextureAtlas;
 
 void Tile::initTiles(std::shared_ptr<TextureAtlas> a1) {
@@ -493,13 +493,24 @@ bool_t Tile::containsZ(const Vec3& vec) {
 	if(vec.x > this->maxX) return 0;
 	return vec.y >= this->minY && vec.y <= this->maxY;
 }
-int32_t Tile::getIDByName(const std::string& s, bool_t a2) {
-	/*if(a2){
+int32_t Tile::getIDByName(const std::string& s, bool a2) {
+	if(a2) {
 		std::string lower = Util::toLower(s);
-
-	}*/
-	printf("Tile::getIDByName - not implemented\n");
-	return 0;
+		for(int i = 0; i < sizeof(Tile::tiles) / sizeof(*Tile::tiles); ++i) {
+			Tile* t = Tile::tiles[i];
+			if(t){
+				if(Util::toLower(t->getName()) == lower) return t->blockID;
+			}
+		}
+	}else{
+		for(int i = 0; i < sizeof(Tile::tiles) / sizeof(*Tile::tiles); ++i) {
+			Tile* t = Tile::tiles[i];
+			if(t){
+				if(t->getName() == s) return t->blockID;
+			}
+		}
+	}
+	return -1;
 }
 struct TextureAtlasTextureItem* Tile::getTextureItem(const std::string& s) {
 	return Tile::_terrainTextureAtlas->getTextureItem(s);

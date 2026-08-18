@@ -7,6 +7,7 @@
 #include <winsock2.h>
 #else
 #include <sys/socket.h>
+#include <netinet/in.h>
 #endif
 struct ConnectedClient;
 struct Minecraft;
@@ -18,24 +19,24 @@ struct CommandServer
 	bool_t initialized;
 	int8_t field_1, field_2, field_3;
 	int32_t _socket;
-	sockaddr field_8;
+	sockaddr_in field_8;
 	Minecraft* minecraft;
 	OffsetPosTranslator posTranslator;
-	int32_t* checkpoint;
-	int32_t field_30, field_34, field_38;
+	uint8_t* checkpoint;
+	int32_t checkpointXCenter, checkpointYStart, checkpointZCenter;
 	CameraEntity* camera;
 	std::vector<ConnectedClient> connected;
 
 	CommandServer(Minecraft*);
 	void _close();
 	void _updateAccept();
-	bool_t _updateClient(ConnectedClient&);
+	bool _updateClient(ConnectedClient&);
 	void _updateClients();
 	void dispatchPacket(Packet&);
-	bool_t handleCheckpoint(bool_t);
+	bool handleCheckpoint(bool);
 	std::string handleEventPollMessage(ConnectedClient&, const std::string&);
 	std::string handleSetSetting(const std::string&, int32_t);
-	bool_t init(int16_t);
+	bool init(int16_t);
 	std::string parse(ConnectedClient&, const std::string&);
 	void tick();
 	~CommandServer();

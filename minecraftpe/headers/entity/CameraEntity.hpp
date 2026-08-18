@@ -3,7 +3,7 @@
 
 struct CameraEntity: Mob
 {
-	int32_t field_C70;
+	int32_t followEid;
 
 	CameraEntity(Level* a2);
 	virtual ~CameraEntity();

@@ -2,5 +2,9 @@
 #include <_types.h>
 
 struct ConnectedClient{
-	int field_0, field_4, time;
+	int sock;
+	std::string field_4;
+	int time;
+
+	ConnectedClient(int sock); //inlined
 };

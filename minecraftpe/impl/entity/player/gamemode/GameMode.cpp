@@ -138,7 +138,7 @@ void GameMode::interact(Player* a2, Entity* a3) {
 	a2->interact(a3);
 }
 void GameMode::attack(Player* a2, Entity* a3) {
-	if((!this->minecraft->level->adventureSettings.enablePVPMaybe || !a3->isPlayer()) && (!this->minecraft->level->adventureSettings.enablePVEMaybe || !a3->isMob())) {
+	if((!this->minecraft->level->adventureSettings.enablePVPMaybe || !a3->isPlayer()) && (!this->minecraft->level->adventureSettings.enablePVE || !a3->isMob())) {
 		a2->attack(a3);
 	}
 }

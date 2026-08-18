@@ -157,6 +157,7 @@ int32_t Gui::itemCountItoa(char_t* buf, int32_t n) {
 		return 1;
 	}
 }
+
 void Gui::addMessage(const std::string& a2, const std::string& a3, int32_t a4) {
 	GuiMessage* v7; // r0
 	char* v8;		// r0

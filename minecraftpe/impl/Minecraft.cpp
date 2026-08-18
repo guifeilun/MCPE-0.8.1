@@ -465,9 +465,8 @@ bool_t Minecraft::isKindleFire(int32_t a2) {
 	if(a2 != 1) return 0;
 
 	std::string v12 = this->platform()->getPlatformStringVar(0);
-	//does something with v12, converts stuff into lowercase and does stuff with "kindle" and "fire"
-	printf("Minecraft::isKindleFire - not implemented\n");
-	return 0;
+	v12 = Util::toLower(v12);
+	return v12.find("kindle") != -1 && v12.find("fire") != -1;
 }
 bool_t Minecraft::isLevelGenerated(void) {
 	if(this->level) return this->levelGenerated;

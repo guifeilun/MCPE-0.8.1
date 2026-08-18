@@ -190,7 +190,7 @@ struct Tile{
 	bool_t containsX(const Vec3&);
 	bool_t containsY(const Vec3&);
 	bool_t containsZ(const Vec3&);
-	int32_t getIDByName(const std::string&, bool_t);
+	static int32_t getIDByName(const std::string&, bool);
 	struct TextureAtlasTextureItem* getTextureItem(const std::string&);
 	TextureUVCoordinateSet getTextureUVCoordinateSet(const std::string&, int32_t);
 	bool_t isFaceVisible(Level*, int32_t, int32_t, int32_t, int32_t);

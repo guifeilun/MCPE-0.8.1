@@ -9,17 +9,15 @@
 #include <ICreator.hpp>
 #include <network/ConnectedClient.hpp>
 #include <network/packet/AdventureSettingsPacket.hpp>
+#include <level/chunk/LevelChunk.hpp>
+#include <string.h>
 
 //not used in 0.8.1, pain to implement
 std::string CommandServer::Ok = "\n", CommandServer::Fail = "Fail\n";
-CommandServer::CommandServer(Minecraft* a2) {
-	this->initialized = 0;
-	this->_socket = 0;
-	this->minecraft = a2;
-	this->checkpoint = 0;
-	this->field_30 = 0;
-	this->field_34 = 0;
-	this->field_38 = 0;
+CommandServer::CommandServer(Minecraft* a2) :
+	initialized(0), _socket(0), minecraft(a2), checkpoint(0),
+	checkpointXCenter(0), checkpointYStart(0), checkpointZCenter(0){
+
 	this->camera = new CameraEntity(a2->level);
 	TilePos res = a2->level->getSharedSpawnPos();
 	this->posTranslator.x = -res.x;
@@ -39,20 +37,44 @@ void CommandServer::_close() {
 		this->_socket = 0;
 	}
 }
-void CommandServer::_updateAccept(){
-	printf("CommandServer::_updateAccept - not implemented\n");
-	//TODO implement
-}
-bool_t CommandServer::_updateClient(ConnectedClient&){
 
+static bool sub_D662BC38(int a1){
+	int v2; // r2
+
+	v2 = fcntl(a1, 3, 0);
+	return v2 >= 0 && fcntl(a1, 4, v2 | 0x800) == 0;
+}
+
+void CommandServer::_updateAccept(){
+	int sock = accept(this->_socket, 0, 0);
+	if(sock == -1) {
+		int v4 = errno;
+	} else {
+		if(sock >= 0) {
+			sub_D662BC38(sock);
+		}
+		this->connected.emplace_back(ConnectedClient(sock));
+		this->connected.back().time = this->minecraft->level->getTime();
+	}
+}
+bool CommandServer::_updateClient(ConnectedClient& client){
+	int v3 = 33;
+	while(--v3){
+
+	}
 	printf("CommandServer::_updateClient - not implemented\n");
 	//TODO implement
+
 	return 0;
 }
 void CommandServer::_updateClients(){
-
-	printf("CommandServer::_updateClients - not implemented\n");
-	//TODO implement
+	int v2 = this->connected.size() - 1;
+	while(v2 >= 0) {
+		if(!this->_updateClient(this->connected[v2])) {
+			this->connected.pop_back();
+		}
+		--v2;
+	}
 }
 void CommandServer::dispatchPacket(Packet& a2) {
 	if(this->minecraft->serverSideNetworkHandler) {
@@ -61,11 +83,30 @@ void CommandServer::dispatchPacket(Packet& a2) {
 		}
 	}
 }
-bool_t CommandServer::handleCheckpoint(bool_t a2){
+bool CommandServer::handleCheckpoint(bool load) {
+	if(!this->checkpoint) {
+		if(load) {
+			return 0;
+		}
+		this->checkpoint = new uint8_t[0xBB00u];
+	}
 
-	printf("CommandServer::handleCheckpoint - not implemented\n");
-	//TODO implement
-	return 0;
+	int offset = 0;
+	for(int z = this->checkpointZCenter - 2; z <= this->checkpointZCenter + 2; ++z) {
+		for(int x = this->checkpointXCenter - 2; x <= this->checkpointXCenter + 2; ++x) {
+			LevelChunk* c = this->minecraft->level->getChunk(x, z);
+			if(c) {
+				int o = offset;
+				offset += 30720;
+				if(load) {
+					c->setBlocksAndData(this->checkpoint, 0, this->checkpointYStart, 0, 16, this->checkpointYStart + 48, 16, o);
+				} else {
+					c->getBlocksAndData(this->checkpoint, 0, this->checkpointYStart, 0, 16, this->checkpointYStart + 48, 16, o);
+				}
+			}
+		}
+	}
+	return 1;
 }
 std::string CommandServer::handleEventPollMessage(ConnectedClient& client, const std::string& event) {
 	ICreator* creator = this->minecraft->getCreator();
@@ -89,8 +130,23 @@ std::string CommandServer::handleEventPollMessage(ConnectedClient& client, const
 
 }
 
-void updateAdventureSettingFlag(Minecraft*, AdventureSettingsPacket::Flags, bool){
-	printf("CommandServer updateAdventureSettingFlag - not implemented\n");
+void updateAdventureSettingFlag(Minecraft* mc, AdventureSettingsPacket::Flags flag, bool value) {
+	AdventureSettingsPacket v10;
+	v10.flags = 0;
+	v10.set(AdventureSettingsPacket::AS_ALLOW_INTERACT, mc->level->adventureSettings.allowInteract);
+	v10.set(AdventureSettingsPacket::AS_ENABLE_PVP, mc->level->adventureSettings.enablePVP);
+	v10.set(AdventureSettingsPacket::AS_ENABLE_PVE, mc->level->adventureSettings.enablePVE);
+	v10.set(AdventureSettingsPacket::AS_FIELD_3, mc->level->adventureSettings.field_3);
+	v10.set(AdventureSettingsPacket::AS_NO_DAYLIGHT_CYCLE, mc->level->adventureSettings.daylightCycle);
+	v10.set(AdventureSettingsPacket::AS_FIELD_5, mc->level->adventureSettings.field_5);
+	v10.set(flag, value);
+	mc->level->adventureSettings.allowInteract = v10.flags & 1;
+	mc->level->adventureSettings.enablePVP = (v10.flags & 2) != 0;
+	mc->level->adventureSettings.enablePVE = (v10.flags & 4) != 0;
+	mc->level->adventureSettings.field_3 = (v10.flags & 8) != 0;
+	mc->level->adventureSettings.field_5 = (v10.flags & 32) != 0;
+	mc->level->adventureSettings.daylightCycle = ((v10.flags ^ 16) & 16) != 0;
+	mc->rakNetInstance->send(v10);
 }
 
 std::string CommandServer::handleSetSetting(const std::string& a2, int32_t a3) {
@@ -105,17 +161,29 @@ std::string CommandServer::handleSetSetting(const std::string& a2, int32_t a3) {
 	//the original method might be slightly different?
 	return Tag::NullString; //not exactly Tag::NullString, but the offset is very close~ - check later?
 }
-bool_t CommandServer::init(int16_t a2) {
+bool CommandServer::init(int16_t a2) {
 	this->_close();
 	this->_socket = socket(2, 1, 0);
 	if(this->_socket < 0) {
 		puts("Failed creating socket - 1");
 		return 0;
 	}
-	printf("CommandServer::init - not implemented\n");
-	//TODO implement
+	sub_D662BC38(this->_socket);
+	memset(&this->field_8, 0, sizeof(this->field_8));
+	this->field_8.sin_family = AF_INET;
+	this->field_8.sin_port = htons(a2);
+	int v7 = 1;
+	setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &v7, sizeof(v7));
+	if(bind(this->_socket, (sockaddr*) &this->field_8, sizeof(this->field_8)) < 0){
+		puts("Failed binding socket - 2");
+		return 0;
+	}
+	if(listen(this->_socket, 128) < 0){
+		puts("Failed listening on socket - 3");
+		return 0;
+	}
 	this->initialized = 1;
-	return 0; //1;
+	return 1;
 }
 std::string CommandServer::parse(ConnectedClient&, const std::string&) {
 	printf("CommandServer::parse - not implemented\n");
