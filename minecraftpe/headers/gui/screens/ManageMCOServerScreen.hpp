@@ -10,6 +10,7 @@ struct TextBox;
 struct NinePatchLayer;
 struct MCOInviteListItemElement;
 struct PackedScrollContainer;
+struct ImageWithBackground;
 namespace Touch {
 	struct THeader;
 }
@@ -25,8 +26,7 @@ struct ManageMCOServerScreen: Screen
 	Label* openLabel;
 	Label* serverNameLabel;
 	Label* invitedPeopleLabel;
-	Button* field_BC;
-	int32_t field_C0;
+	std::shared_ptr<ImageWithBackground> field_BC;
 	TextBox* serverNameTextBox;
 	TextBox* playerNameTextBox;
 	PackedScrollContainer* field_CC;

@@ -793,7 +793,7 @@ void ClientSideNetworkHandler::handle(const RakNet::RakNetGUID& a2, struct ChatP
 void ClientSideNetworkHandler::handle(const RakNet::RakNetGUID& a2, struct AdventureSettingsPacket* a3) {
 	if(this->level) {
 		this->level->adventureSettings.allowInteract = a3->flags & 1;
-		this->level->adventureSettings.enablePVPMaybe = (a3->flags & 2) != 0;
+		this->level->adventureSettings.enablePVP = (a3->flags & 2) != 0;
 		this->level->adventureSettings.enablePVE = (a3->flags & 4) != 0;
 		this->level->adventureSettings.field_3 = (a3->flags & 8) != 0;
 		this->level->adventureSettings.daylightCycle = ((a3->flags ^ 0x10) & 0x10) != 0;

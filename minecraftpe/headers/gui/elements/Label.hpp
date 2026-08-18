@@ -6,9 +6,9 @@ struct Label: GuiElement
 {
 	std::string text;
 	Minecraft* minecraft;
-	int32_t field_2C;
+	int32_t textColor;
 	int32_t widthBase, heightBase;
-	bool_t field_38, field_39;
+	bool_t field_38, textShadow;
 	int8_t field_3A, field_3B;
 
 	Label(std::string, Minecraft*, int32_t, int32_t, int32_t, int32_t, bool_t);

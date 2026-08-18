@@ -9,6 +9,10 @@
 #include <gui/screens/CreateWorldScreen.hpp>
 #include <gui/screens/PlayScreen.hpp>
 #include <rendering/Tesselator.hpp>
+#include <gui/NinePatchFactory.hpp>
+#include <util/IntRectangle.hpp>
+#include <gui/buttons/ImageWithBackground.hpp>
+#include <gui/elements/MCOInviteListItemElement.hpp>
 
 ManageMCOServerScreen::ManageMCOServerScreen(const MCOServerListItem& a2) {
 	this->item.worldName = "My World";
@@ -20,8 +24,6 @@ ManageMCOServerScreen::ManageMCOServerScreen(const MCOServerListItem& a2) {
 	this->openLabel = 0;
 	this->serverNameLabel = 0;
 	this->invitedPeopleLabel = 0;
-	this->field_BC = 0;
-	this->field_C0 = 0;
 	this->serverNameTextBox = 0;
 	this->playerNameTextBox = 0;
 	this->field_CC = 0;
@@ -76,7 +78,77 @@ void ManageMCOServerScreen::render(int32_t a2, int32_t a3, float a4) {
 	Screen::render(a2, a3, a4);
 }
 void ManageMCOServerScreen::init(){
-	printf("ManageMCOServerScreen::init - not implemented\n"); //TODO
+	this->manageServerHeader = new Touch::THeader(0, "Manage server");
+	this->backButton = new Touch::TButton(1, "Back", 0);
+	this->resetButton = new Touch::TButton(2, "Reset", 0);
+	((Touch::TButton*)this->resetButton)->init(this->minecraft);
+	this->backButton->width = 38;
+	this->backButton->height = 18;
+	((Touch::TButton*)this->backButton)->init(this->minecraft);
+	this->buttons.emplace_back(this->manageServerHeader);
+	this->buttons.push_back(this->backButton);
+	NinePatchFactory npf(this->minecraft->texturesPtr, "gui/spritesheet.png");
+	this->field_D4 = npf.createSymmetrical(IntRectangle{34, 43, 14, 14}, 3, 3, 32, 32);
+	ImageDef v37; //TODO this is supposed to be inside of some constructor?
+	v37.field_1C = 38;
+	v37.field_14 = 160;
+	v37.field_24 = 1;
+	v37.field_18 = 206;
+	v37.field_20 = 20;
+
+	v37.field_0 = "gui/touchgui.png";
+	v37.width = 38.0;
+	v37.height = 20.0;
+	this->openLabel = new Label("Open", this->minecraft, -1, 0, 0, 0, 1);
+	this->field_AC = new OptionButton(this->item.field_C);
+	this->field_AC->setImageDef(v37, 1);
+	//TODO 104, 1 are assigned here, no idea what they do
+	this->playerNameTextBox = new TextBox(this->minecraft, "Player Name", 16, 0, 0, this, &Screen::onTextBoxUpdated, 1, 2);
+	this->playerNameTextBox->posY = -200;
+	//TODO 104, 1 are assigned here, no idea what they do
+	this->serverNameTextBox = new TextBox(this->minecraft, "Server Name", 16, 0, 0, this, &Screen::onTextBoxUpdated, 1, 1);
+	this->serverNameTextBox->setText(this->item.worldName);
+	this->serverNameLabel = new Label("Server Name", this->minecraft, -1, 0, 0, 0, 1);
+	this->invitedPeopleLabel = new Label("Invited People", this->minecraft, 0xFF373535, 0, 0, 0, 0);
+	this->field_D8 = new Label("", this->minecraft, 0xFFC6321B, 0, 0, 0, 0);
+	this->field_D8->field_3A = 1;
+	this->resetButton->width = 38;
+	this->resetButton->height = 18;
+	this->buttons.push_back(this->resetButton);
+	this->field_CC = new PackedScrollContainer(0, 0, 0);
+	this->elements.emplace_back(this->openLabel);
+	this->elements.emplace_back(this->field_AC);
+	this->elements.emplace_back(this->serverNameTextBox);
+	this->elements.emplace_back(this->serverNameLabel);
+	this->elements.emplace_back(this->invitedPeopleLabel);
+	this->elements.emplace_back(this->field_CC);
+	this->elements.emplace_back(this->playerNameTextBox);
+	this->elements.emplace_back(this->field_D8);
+	this->field_D4->setSize(this->width, this->height);
+	this->field_D0 = npf.createSymmetrical(IntRectangle{0, 20, 8, 8}, 1, 2, 32, 32)->setExcluded(16);
+	this->field_BC = std::shared_ptr<ImageWithBackground>(new ImageWithBackground(2));
+	this->field_BC->init(this->minecraft->texturesPtr, this->field_BC->width, this->field_BC->height, {112, 0, 8, 67}, {120, 0, 8, 67}, 2, 2, "gui/spritesheet.png");
+	ImageDef v43;
+	v43.field_18 = 0;
+	v43.height = 12.0;
+	v43.width = 12.0;
+	v43.field_24 = 1;
+	v43.field_14 = 221;
+	v43.field_1C = 8;
+	v43.field_20 = 8;
+	v43.field_0 = "gui/gui.png";
+	this->field_BC->setImageDef(v43, 0);
+	this->buttons.emplace_back(this->field_BC.get());
+	this->field_BC->setOverrideScreenRendering(1);
+	this->field_CC->addChild(this->field_BC);
+	this->setupPositions();
+	//TODO check:
+	for(auto&& it = this->item.field_2C.begin(); it != this->item.field_2C.end(); ++it) {
+		MCOInviteListItemElement* v28 = this->_addInviteElement(it->second);
+		if(v28) {
+			v28->onFriendSearchCompleted(it->second);
+		}
+	}
 }
 void ManageMCOServerScreen::setupPositions() {
 	int32_t width; // r5
@@ -145,7 +217,7 @@ void ManageMCOServerScreen::onTextBoxUpdated(int32_t){
 void ManageMCOServerScreen::buttonClicked(Button* a2) {
 	if(a2 == this->backButton) {
 		this->closeScreen();
-	} else if(a2 == this->field_BC) {
+	} else if(a2 == this->field_BC.get()) {
 		this->playerNameTextBox->setText("");
 		this->playerNameTextBox->setFocus(this->minecraft);
 	} else if(a2 == this->resetButton) {
