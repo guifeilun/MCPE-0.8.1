@@ -38,11 +38,15 @@ void CommandServer::_close() {
 	}
 }
 
-static bool sub_D662BC38(int a1){
+static bool setNonBlocking(int a1){
 	int v2; // r2
-
-	v2 = fcntl(a1, 3, 0);
-	return v2 >= 0 && fcntl(a1, 4, v2 | 0x800) == 0;
+#ifdef _WIN32
+	unsigned long mode = 1;
+	return (ioctlsocket(fd, FIONBIO, &mode) == 0);
+#else
+	v2 = fcntl(a1, F_GETFL, 0);
+	return v2 >= 0 && fcntl(a1, F_SETFL, v2 | O_NONBLOCK) == 0;
+#endif
 }
 
 void CommandServer::_updateAccept(){
@@ -51,7 +55,7 @@ void CommandServer::_updateAccept(){
 		int v4 = errno;
 	} else {
 		if(sock >= 0) {
-			sub_D662BC38(sock);
+			setNonBlocking(sock);
 		}
 		this->connected.emplace_back(ConnectedClient(sock));
 		this->connected.back().time = this->minecraft->level->getTime();
@@ -168,7 +172,7 @@ bool CommandServer::init(int16_t a2) {
 		puts("Failed creating socket - 1");
 		return 0;
 	}
-	sub_D662BC38(this->_socket);
+	setNonBlocking(this->_socket);
 	memset(&this->field_8, 0, sizeof(this->field_8));
 	this->field_8.sin_family = AF_INET;
 	this->field_8.sin_port = htons(a2);
