@@ -73,6 +73,7 @@
 #include <tile/entity/FurnaceTileEntity.hpp>
 #include <tile/entity/TileEntity.hpp>
 #include <util/_ChunkSorter.hpp>
+#include <algorithm>
 
 ClientSideNetworkHandler::ClientSideNetworkHandler(Minecraft* a2, IRakNetInstance* a3) {
 	this->minecraft = a2;
@@ -88,16 +89,6 @@ bool_t ClientSideNetworkHandler::areAllChunksLoaded() {
 	return this->loadedChunks > 255;
 }
 
-static _ChunkSorter _ihatecppstdevenmore;
-static int32_t _ihatecppstd(const void* a, const void* b) {
-	const IntPair* aa = (const IntPair*)a;
-	const IntPair* bb = (const IntPair*)b;
-	bool_t res = _ihatecppstdevenmore(*aa, *bb);
-	if(aa->x == bb->x && aa->y == bb->y) return 0;
-	if(res) return -1;
-	return 1;
-}
-
 void ClientSideNetworkHandler::arrangeRequestChunkOrder() {
 	this->clearChunksLoaded();
 	int cx, cz;
@@ -109,10 +100,7 @@ void ClientSideNetworkHandler::arrangeRequestChunkOrder() {
 		cx = 8;
 	}
 
-	//TODO uses std::sort(or something else) but it doesnt want to compile (no match for 'operator+'(operand type is 'IntPair'))
-
-	_ihatecppstdevenmore = _ChunkSorter{cx, cz};
-	qsort(this->chunksToSend, 256, sizeof(*this->chunksToSend), _ihatecppstd);
+	std::sort<IntPair*>(std::begin(this->chunksToSend), std::end(this->chunksToSend), _ChunkSorter{cx, cz});
 }
 void ClientSideNetworkHandler::clearChunksLoaded() {
 	for(int v1 = 0; v1 != 256; ++v1) {
@@ -792,6 +780,7 @@ void ClientSideNetworkHandler::handle(const RakNet::RakNetGUID& a2, struct ChatP
 }
 void ClientSideNetworkHandler::handle(const RakNet::RakNetGUID& a2, struct AdventureSettingsPacket* a3) {
 	if(this->level) {
+		//TODO inlined AdventureSettingsPacket::fillIn?
 		this->level->adventureSettings.allowInteract = a3->flags & 1;
 		this->level->adventureSettings.enablePVP = (a3->flags & 2) != 0;
 		this->level->adventureSettings.enablePVE = (a3->flags & 4) != 0;
