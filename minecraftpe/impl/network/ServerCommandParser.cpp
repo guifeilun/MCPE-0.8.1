@@ -44,7 +44,6 @@ std::string* ServerCommandParser::executeCommand(const GuiMessage& msg) {
 		if(v5 > v8) break;
 		if(v5 >= v8) {
 			if(v2) {
-				printf("1 adding token: %s\n", v18.c_str());
 				v24.emplace_back(ServerCommandParser::Token(v18));
 				goto LABEL_19;
 				//goto ADD_TOKEN;
@@ -58,7 +57,6 @@ std::string* ServerCommandParser::executeCommand(const GuiMessage& msg) {
 						goto LABEL_19;
 					}
 ADD_TOKEN:
-					printf("2 adding token: %s\n", v18.c_str());
 					v24.emplace_back(ServerCommandParser::Token(v18));
 					v18.clear();
 					goto LABEL_19;
