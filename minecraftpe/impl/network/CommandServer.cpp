@@ -176,8 +176,8 @@ bool CommandServer::init(int16_t a2) {
 	memset(&this->field_8, 0, sizeof(this->field_8));
 	this->field_8.sin_family = AF_INET;
 	this->field_8.sin_port = htons(a2);
-	int v7 = 1;
-	setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &v7, sizeof(v7));
+	const int v7 = 1;
+	setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, (const char*) &v7, sizeof(v7));
 	if(bind(this->_socket, (sockaddr*) &this->field_8, sizeof(this->field_8)) < 0){
 		puts("Failed binding socket - 2");
 		return 0;
