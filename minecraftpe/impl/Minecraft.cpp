@@ -138,7 +138,7 @@ Minecraft::Minecraft()
 	this->soundEngine = new SoundEngine(20);
 	this->soundEngine->init(this, &this->options);
 	this->cmutex = new CMutex();
-	this->field_D30 = new ServerCommandParser();
+	this->serverCmdParser = new ServerCommandParser();
 }
 
 void Minecraft::_levelGenerated(void) {
@@ -973,8 +973,8 @@ void Minecraft::teardown(void) {
 		delete this->cmutex;
 	}
 
-	if(this->field_D30) {
-		delete this->field_D30;
+	if(this->serverCmdParser) {
+		delete this->serverCmdParser;
 	}
 
 	MobFactory::getStaticTestMob(0, 0); //TODO used as param for destroy??

@@ -22,6 +22,7 @@
 #include <util/IntRectangle.hpp>
 #include <util/OffsetPosTranslator.hpp>
 #include <utils.h>
+#include <network/ServerCommandParser.hpp>
 
 float Gui::InvGuiScale = 0.333333;
 float Gui::GuiScale;
@@ -165,10 +166,7 @@ void Gui::addMessage(const std::string& a2, const std::string& a3, int32_t a4) {
 		this->chatMessages.emplace(this->chatMessages.begin(), v13);
 
 		if(!this->minecraftInst->isOnlineClient() && v13.field_8[0] == '/') {
-			//TODO - proper command handling
-			//std::string v10 = ServerCommandParser::executeCommand
-			std::string cmd = v13.field_8.substr(1);
-			std::string v10 = cmd == "" ? "Error: no command provided" : "Error: Command "+cmd+" not found";
+			std::string v10 = *this->minecraftInst->serverCmdParser->executeCommand(v13);
 
 			this->chatMessages.emplace(this->chatMessages.begin(), GuiMessage("server", v10, 200));
 		}

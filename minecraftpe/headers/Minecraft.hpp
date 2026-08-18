@@ -75,7 +75,7 @@ struct Minecraft : App{
 	struct PerfRenderer* perfRenderer;
 	struct CommandServer* commandServer;
 	struct CMutex* cmutex;
-	struct ServerCommandParser* field_D30;
+	struct ServerCommandParser* serverCmdParser;
 	double field_D34;
 	double timeStartedAtMaybe;
 

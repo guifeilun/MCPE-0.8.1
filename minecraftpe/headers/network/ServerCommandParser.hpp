@@ -9,30 +9,32 @@
 struct GuiMessage;
 struct ServerCommandParser
 {
-	struct Command
-	{
-		//TODO figure out what those 2 fields are
-		//std::vector field_0;
-		int32_t exceptedParamCnt;
-		//std::function field_10;
-
-		//TODO checkParameters function
-		~Command();
-	};
 
 	struct Token
 	{
 		std::string field_0;
 		int32_t n;
-		int32_t field_8;
-		bool_t field_C;
-		int8_t field_D, field_E, field_F;
+		int32_t isNumeric;
+		bool isEmpty;
 
 		Token(const std::string&);
 	};
 
-	std::string field_0;
-	std::unordered_map<std::string, std::unique_ptr<ServerCommandParser::Command>> field_4;
+	struct Command
+	{
+		//array of integers where 0 is non numeric, and anything else is numeric?
+		std::vector<int> numericParams;
+		int32_t exceptedParamCnt;
+		//first element in the array seems to be player's username
+		std::function<std::string (const std::vector<ServerCommandParser::Token>&)> func;
 
-	static std::string executeCommand(const GuiMessage&);
+		~Command();
+		std::string checkParameters(const std::vector<ServerCommandParser::Token>&);
+	};
+
+	std::string retStr;
+	std::unordered_map<std::string, std::unique_ptr<ServerCommandParser::Command>> commands;
+
+	ServerCommandParser();
+	std::string* executeCommand(const GuiMessage&);
 };
