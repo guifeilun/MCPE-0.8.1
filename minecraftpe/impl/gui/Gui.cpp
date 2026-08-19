@@ -332,7 +332,7 @@ bool_t Gui::isInside(int32_t x, int32_t y) {
 }
 
 OffsetPosTranslator _spawnPos;
-char_t _D6E05AAC[264];
+static char_t _D6E05AAC[264];
 
 void Gui::onLevelGenerated() {
 	if(this->minecraftInst->level) {
@@ -400,6 +400,7 @@ void Gui::render(float a2, bool_t a3, int32_t a4, int32_t a5) {
 				this->renderBubbles();
 				Tesselator::instance.endOverrideAndDraw();
 			}
+
 			if(this->minecraftInst->player->getSleepTimer() > 0) {
 				this->renderSleepAnimation(v15, v16);
 			}

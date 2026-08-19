@@ -2,8 +2,10 @@
 #define UNK
 
 #include <stdint.h>
+#include <stdbool.h>
+
 typedef char char_t;
-typedef	unsigned char bool_t;
+typedef	bool bool_t;
 #ifdef DEBUG
 
 #ifdef ANDROID

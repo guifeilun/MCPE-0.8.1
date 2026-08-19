@@ -19,15 +19,11 @@
 #include <rendering/EntityTileRenderer.hpp>
 #include <tile/entity/ChestTileEntity.hpp>
 
-void TileRenderer::_randomizeFaceDirection(Tile* a2, int32_t a3, float a4, float a5, float a6) {
-	int32_t* v6; // r2
-	int32_t v7;	 // r3
-	//TODO what is this </3
-	if((((uint32_t)a2->field_5C >> a3) & 1) != 0) {
-		v6 = (int32_t*)(&this->field_50 + a3);
-		if(!v6[1]) {
-			v7 = (int32_t)a5 ^ (0x2FC20F * (int32_t)a4) ^ (0x6EBFFF5 * (int32_t)a6);
-			v6[1] = ((uint32_t)(11 * v7 + 0x285B825 * v7 * v7) >> 24) & 3;
+void TileRenderer::_randomizeFaceDirection(Tile* a2, int32_t face, float a4, float a5, float a6) {
+	if((((uint32_t)a2->field_5C >> face) & 1) != 0) {
+		if(!this->randomizeFace[face]) {
+			int v7 = (int32_t)a5 ^ (0x2FC20F * (int32_t)a4) ^ (0x6EBFFF5 * (int32_t)a6);
+			this->randomizeFace[face] = ((uint32_t)(11 * v7 + 0x285B825 * v7 * v7) >> 24) & 3;
 		}
 	}
 }
@@ -35,23 +31,11 @@ bool_t TileRenderer::canRender(int32_t a1) {
 	return !a1 || a1 == 13 || a1 == 10 || a1 == 11 || a1 == 21 || a1 == 32 || a1 == 22 || a1 == 31;
 }
 
-TileRenderer::TileRenderer(struct LevelSource* a2) {
-	this->levelSource = a2;
-	this->field_0 = 0;
-	this->hasUVCoords = 0;
-	this->field_8.minX = 0.0;
-	this->field_8.minY = 0.0;
-	this->field_8.maxX = 0.0;
-	this->field_8.maxY = 0.0;
-	this->field_21 = 0;
-	this->disableCulling = 0;
-	this->field_23 = 0;
-	this->field_68 = 0;
-	this->field_64 = 0;
-	this->field_60 = 0;
-	this->field_5C = 0;
-	this->field_58 = 0;
-	this->field_54 = 0;
+TileRenderer::TileRenderer(struct LevelSource* a2) :
+	levelSource(a2), field_0(0), hasUVCoords(0),
+	field_8(),  //field_8 is inlined
+	field_21(0), disableCulling(0), enableAO(0), randomizeFace{0, 0, 0, 0, 0, 0}
+{
 }
 float TileRenderer::getWaterHeight(int32_t x, int32_t y, int32_t z, const struct Material* a5) {
 	float v5;	   // s16
@@ -153,7 +137,7 @@ void TileRenderer::renderEast(Tile* a2, float a3, float a4, float a5, const stru
 		minY = a6->maxY - (float)(maxY * v23);
 	}
 	this->_randomizeFaceDirection(a2, 5, a3, a4, a5);
-	v24 = this->field_68;
+	v24 = this->randomizeFace[5];
 	if(v24 == 2) {
 		v25 = a6->maxX - a6->minX;
 		v26 = a6->maxY;
@@ -203,14 +187,14 @@ void TileRenderer::renderEast(Tile* a2, float a3, float a4, float a5, const stru
 	if(this->field_0) {
 		Tesselator::instance.normal(Vec3::UNIT_X);
 	}
-	if (this->field_23){
-		Tesselator::instance.color(this->field_24, this->field_34, this->field_44);
+	if (this->enableAO){
+		Tesselator::instance.color(this->redXeYs, this->greenXeYs, this->blueXeYs);
 		Tesselator::instance.vertexUV(v40, v41, v44, v30, v29);
-		Tesselator::instance.color(this->field_28, this->field_38, this->field_48);
+		Tesselator::instance.color(this->redXsYs, this->greenXsYs, this->blueXsYs);
 		Tesselator::instance.vertexUV(v40, v41, v42, maxX, v17);
-		Tesselator::instance.color(this->field_2C, this->field_3C, this->field_4C);
+		Tesselator::instance.color(this->redXsYe, this->greenXsYe, this->blueXsYe);
 		Tesselator::instance.vertexUV(v40, v43, v42, v31, v28);
-		Tesselator::instance.color(this->field_30, this->field_40, this->field_50);
+		Tesselator::instance.color(this->redXeYe, this->greenXeYe, this->blueXeYe);
 	}else{
 		Tesselator::instance.vertexUV(v40, v41, v44, v30, v29);
 		Tesselator::instance.vertexUV(v40, v41, v42, maxX, v17);
@@ -273,7 +257,7 @@ void TileRenderer::renderFaceDown(Tile* a2, float a3, float a4, float a5, const 
 		maxY = a6->minY + (float)(maxZ * v20);
 	}
 	this->_randomizeFaceDirection(a2, 0, a3, a4, a5);
-	v21 = this->field_54;
+	v21 = this->randomizeFace[0];
 	if(v21 == 2) {
 		v22 = a6->maxX - a6->minX;
 		v23 = a6->maxY;
@@ -323,14 +307,15 @@ void TileRenderer::renderFaceDown(Tile* a2, float a3, float a4, float a5, const 
 	if(this->field_0) {
 		Tesselator::instance.normal(Vec3::NEG_UNIT_Y);
 	}
-	if(this->field_23) {
-		Tesselator::instance.color(this->field_24, this->field_34, this->field_44);
+	if(this->enableAO) {
+		//rgby
+		Tesselator::instance.color(this->redXeYs, this->greenXeYs, this->blueXeYs);
 		Tesselator::instance.vertexUV(v37, v39, v41, v27, v26);
-		Tesselator::instance.color(this->field_28, this->field_38, this->field_48);
+		Tesselator::instance.color(this->redXsYs, this->greenXsYs, this->blueXsYs);
 		Tesselator::instance.vertexUV(v37, v39, v40, v12, minY);
-		Tesselator::instance.color(this->field_2C, this->field_3C, this->field_4C);
+		Tesselator::instance.color(this->redXsYe, this->greenXsYe, this->blueXsYe);
 		Tesselator::instance.vertexUV(v38, v39, v40, v28, v25);
-		Tesselator::instance.color(this->field_30, this->field_40, this->field_50);
+		Tesselator::instance.color(this->redXeYe, this->greenXeYe, this->blueXeYe);
 	} else {
 		Tesselator::instance.vertexUV(v37, v39, v41, v27, v26);
 		Tesselator::instance.vertexUV(v37, v39, v40, v12, minY);
@@ -393,7 +378,7 @@ void TileRenderer::renderFaceUp(Tile* a2, float a3, float a4, float a5, const st
 		maxY = a6->minY + (float)(maxZ * v20);
 	}
 	this->_randomizeFaceDirection(a2, 1, a3, a4, a5);
-	v21 = this->field_58;
+	v21 = this->randomizeFace[1];
 	if(v21 == 1) {
 		v22 = a6->maxX - a6->minX;
 		v23 = a6->maxY;
@@ -444,14 +429,14 @@ void TileRenderer::renderFaceUp(Tile* a2, float a3, float a4, float a5, const st
 		Tesselator::instance.normal(Vec3::UNIT_Y);
 	}
 
-	if(this->field_23) {
-		Tesselator::instance.color(this->field_24, this->field_34, this->field_44);
+	if(this->enableAO) {
+		Tesselator::instance.color(this->redXeYs, this->greenXeYs, this->blueXeYs);
 		Tesselator::instance.vertexUV(v39, v38, v41, maxX, maxY);
-		Tesselator::instance.color(this->field_28, this->field_38, this->field_48);
+		Tesselator::instance.color(this->redXsYs, this->greenXsYs, this->blueXsYs);
 		Tesselator::instance.vertexUV(v39, v38, v40, v28, v25);
-		Tesselator::instance.color(this->field_2C, this->field_3C, this->field_4C);
+		Tesselator::instance.color(this->redXsYe, this->greenXsYe, this->blueXsYe);
 		Tesselator::instance.vertexUV(v37, v38, v40, v12, minY);
-		Tesselator::instance.color(this->field_30, this->field_40, this->field_50);
+		Tesselator::instance.color(this->redXeYe, this->greenXeYe, this->blueXeYe);
 	} else {
 		Tesselator::instance.vertexUV(v39, v38, v41, maxX, maxY);
 		Tesselator::instance.vertexUV(v39, v38, v40, v28, v25);
@@ -780,7 +765,7 @@ void TileRenderer::renderNorth(Tile* a2, float a3, float a4, float a5, const str
 		minY = a6->maxY - (float)(maxY * v23);
 	}
 	this->_randomizeFaceDirection(a2, 2, a3, a4, a5);
-	v24 = this->field_5C;
+	v24 = this->randomizeFace[2];
 	if(v24 == 2) {
 		v25 = a6->maxX - a6->minX;
 		v26 = a6->maxY;
@@ -830,14 +815,14 @@ void TileRenderer::renderNorth(Tile* a2, float a3, float a4, float a5, const str
 	if(this->field_0) {
 		Tesselator::instance.normal(Vec3::NEG_UNIT_Z);
 	}
-	if(this->field_23) {
-		Tesselator::instance.color(this->field_24, this->field_34, this->field_44);
+	if(this->enableAO) {
+		Tesselator::instance.color(this->redXeYs, this->greenXeYs, this->blueXeYs);
 		Tesselator::instance.vertexUV(v40, v43, v44, v31, v28);
-		Tesselator::instance.color(this->field_28, this->field_38, this->field_48);
+		Tesselator::instance.color(this->redXsYs, this->greenXsYs, this->blueXsYs);
 		Tesselator::instance.vertexUV(v41, v43, v44, minX, minY);
-		Tesselator::instance.color(this->field_2C, this->field_3C, this->field_4C);
+		Tesselator::instance.color(this->redXsYe, this->greenXsYe, this->blueXsYe);
 		Tesselator::instance.vertexUV(v41, v42, v44, v30, v29);
-		Tesselator::instance.color(this->field_30, this->field_40, this->field_50);
+		Tesselator::instance.color(this->redXeYe, this->greenXeYe, this->blueXeYe);
 	} else {
 		Tesselator::instance.vertexUV(v40, v43, v44, v31, v28);
 		Tesselator::instance.vertexUV(v41, v43, v44, minX, minY);
@@ -913,7 +898,7 @@ void TileRenderer::renderSouth(Tile* a2, float a3, float a4, float a5, const Tex
 		minY = v10->maxY - (float)(maxY * v23);
 	}
 	this->_randomizeFaceDirection(a2, 3, a3, a4, a5);
-	v24 = this->field_60;
+	v24 = this->randomizeFace[3];
 	if(v24 == 1) {
 		v25 = v10->maxX - v10->minX;
 		v26 = v10->maxY;
@@ -963,14 +948,14 @@ void TileRenderer::renderSouth(Tile* a2, float a3, float a4, float a5, const Tex
 	if(this->field_0) {
 		Tesselator::instance.normal(Vec3::UNIT_Z);
 	}
-	if(this->field_23) {
-		Tesselator::instance.color(this->field_24, this->field_34, this->field_44);
+	if(this->enableAO) {
+		Tesselator::instance.color(this->redXeYs, this->greenXeYs, this->blueXeYs);
 		Tesselator::instance.vertexUV(v40, v43, v44, minX, minY);
-		Tesselator::instance.color(this->field_28, this->field_38, this->field_48);
+		Tesselator::instance.color(this->redXsYs, this->greenXsYs, this->blueXsYs);
 		Tesselator::instance.vertexUV(v40, v42, v44, v30, v28);
-		Tesselator::instance.color(this->field_2C, this->field_3C, this->field_4C);
+		Tesselator::instance.color(this->redXsYe, this->greenXsYe, this->blueXsYe);
 		Tesselator::instance.vertexUV(v41, v42, v44, maxX, v17);
-		Tesselator::instance.color(this->field_30, this->field_40, this->field_50);
+		Tesselator::instance.color(this->redXeYe, this->greenXeYe, this->blueXeYe);
 	} else {
 		Tesselator::instance.vertexUV(v40, v43, v44, minX, minY);
 		Tesselator::instance.vertexUV(v40, v42, v44, v30, v28);
@@ -1297,7 +1282,7 @@ void TileRenderer::renderWest(Tile* a2, float a3, float a4, float a5, const stru
 		minY = a6->maxY - (float)(maxY * v23);
 	}
 	this->_randomizeFaceDirection(a2, 4, a3, a4, a5);
-	v24 = this->field_64;
+	v24 = this->randomizeFace[4];
 	if(v24 == 1) {
 		v25 = a6->maxX - a6->minX;
 		v26 = a6->maxY;
@@ -1347,14 +1332,14 @@ void TileRenderer::renderWest(Tile* a2, float a3, float a4, float a5, const stru
 	if(this->field_0) {
 		Tesselator::instance.normal(Vec3::NEG_UNIT_X);
 	}
-	if(this->field_23) {
-		Tesselator::instance.color(this->field_24, this->field_34, this->field_44);
+	if(this->enableAO) {
+		Tesselator::instance.color(this->redXeYs, this->greenXeYs, this->blueXeYs);
 		Tesselator::instance.vertexUV(v40, v42, v44, v31, v28);
-		Tesselator::instance.color(this->field_28, this->field_38, this->field_48);
+		Tesselator::instance.color(this->redXsYs, this->greenXsYs, this->blueXsYs);
 		Tesselator::instance.vertexUV(v40, v42, v43, minX, minY);
-		Tesselator::instance.color(this->field_2C, this->field_3C, this->field_4C);
+		Tesselator::instance.color(this->redXsYe, this->greenXsYe, this->blueXsYe);
 		Tesselator::instance.vertexUV(v40, v41, v43, v30, v29);
-		Tesselator::instance.color(this->field_30, this->field_40, this->field_50);
+		Tesselator::instance.color(this->redXeYe, this->greenXeYe, this->blueXeYe);
 	} else {
 		Tesselator::instance.vertexUV(v40, v42, v44, v31, v28);
 		Tesselator::instance.vertexUV(v40, v42, v43, minX, minY);
@@ -1573,7 +1558,7 @@ bool_t TileRenderer::tesselateBlockInWorld(Tile* tile, int32_t x, int32_t y, int
 	float v27;						   // s20
 	TextureUVCoordinateSet v29;		   // [sp+4h] [bp-5Ch]
 
-	this->field_23 = 0;
+	this->enableAO = 0;
 	if(tile == Tile::grass) {
 		v12 = 1.0;
 		v13 = 1.0;
@@ -1664,728 +1649,300 @@ bool_t TileRenderer::tesselateBlockInWorld(Tile* tile, int32_t x, int32_t y, int
 }
 
 bool_t TileRenderer::tesselateBlockInWorldWithAmbienceOcclusion(Tile* tile, int32_t x, int32_t y, int32_t z, float r, float g, float b) {
-	bool_t v12;							// r8
-	float v13;							// s24
-	float v14;							// s23
-	float v15;							// s22
-	float v16;							// s21
-	float v17;							// r0
-	float v18;							// s23
-	float v19;							// s21
-	float v20;							// s22
-	float v21;							// s20
-	float v22;							// s14
-	float v23;							// s15
-	LevelSource* levelSource;			// r1
-	float v25;							// s15
-	float v26;							// s15
-	float v27;							// s15
-	const TextureUVCoordinateSet* v28;	// r0
-	float v29;							// s23
-	float v30;							// s24
-	float v31;							// s26
-	float v32;							// s25
-	float v33;							// r0
-	LevelSource* v34;					// r1
-	float v35;							// s11
-	float v36;							// s12
-	float v37;							// s21
-	float v38;							// s20
-	float v39;							// s13
-	const TextureUVCoordinateSet* v40;	// r0
-	float v41;							// s23
-	float v42;							// s26
-	float v43;							// s24
-	float v44;							// s25
-	float v45;							// r0
-	float v46;							// s14
-	float v47;							// s12
-	float v48;							// s13
-	float v49;							// s20
-	float v50;							// s19
-	float v51;							// s15
-	LevelSource* v52;					// r1
-	float v53;							// s15
-	float v54;							// s15
-	float v55;							// s15
-	const TextureUVCoordinateSet* v56;	// r0
-	float v57;							// s23
-	float v58;							// s26
-	float v59;							// s24
-	float v60;							// s25
-	float v61;							// r0
-	float v62;							// s14
-	float v63;							// s12
-	float v64;							// s13
-	float v65;							// s20
-	float v66;							// s19
-	float v67;							// s15
-	LevelSource* v68;					// r1
-	float v69;							// s15
-	float v70;							// s15
-	float v71;							// s15
-	float v72;							// s24
-	float v73;							// s23
-	float v74;							// s22
-	float v75;							// s21
-	float v76;							// r0
-	float v77;							// s14
-	float v78;							// s23
-	float v79;							// s21
-	float v80;							// s22
-	float v81;							// s20
-	float v82;							// s15
-	LevelSource* v83;					// r1
-	float v84;							// s15
-	float v85;							// s15
-	float v86;							// s15
-	const TextureUVCoordinateSet* v87;	// r0
-	float v88;							// s23
-	float v89;							// s26
-	float v90;							// s24
-	float v91;							// s25
-	float v92;							// r0
-	float v93;							// s12
-	float v94;							// s20
-	float v95;							// s13
-	float v96;							// s14
-	float v97;							// s15
-	LevelSource* v98;					// r1
-	float v99;							// s15
-	float v100;							// s15
-	float v101;							// s15
-	const TextureUVCoordinateSet* v102; // r0
-	float v103;							// s20
-	float v104;							// s25
-	float v105;							// s26
-	float v106;							// s19
-	float v107;							// s14
-	float v108;							// s19
-	float v109;							// s20
-	float v110;							// s21
-	float v111;							// s22
-	bool_t v112;						// r11
-	float v113;							// s19
-	float v114;							// s21
-	float v115;							// s22
-	float v116;							// s20
-	bool_t v117;						// r11
-	float v118;							// s19
-	float v119;							// s20
-	float v120;							// s21
-	float v121;							// s22
-	bool_t v122;						// r9
-	float v123;							// s25
-	float v124;							// s20
-	float v125;							// s19
-	float v126;							// s26
-	bool_t v127;						// r11
-	float v128;							// s21
-	float v129;							// s19
-	float v130;							// s20
-	float v131;							// s22
-	bool_t result;						// r0
-	TextureUVCoordinateSet v133;		// [sp+4h] [bp-9Ch]
-	int32_t v134;						// [sp+24h] [bp-7Ch]
-	int32_t v135;						// [sp+24h] [bp-7Ch]
-	int32_t v136;						// [sp+24h] [bp-7Ch]
-	int32_t v137;						// [sp+24h] [bp-7Ch]
-	int32_t v138;						// [sp+24h] [bp-7Ch]
-	int32_t v139;						// [sp+24h] [bp-7Ch]
-	bool_t v140;						// [sp+28h] [bp-78h]
-	int32_t v141;						// [sp+28h] [bp-78h]
-	int32_t v142;						// [sp+28h] [bp-78h]
-	int32_t v143;						// [sp+28h] [bp-78h]
-	int32_t v144;						// [sp+28h] [bp-78h]
-	int32_t v145;						// [sp+28h] [bp-78h]
-	int32_t v146;						// [sp+2Ch] [bp-74h]
-	int32_t v147;						// [sp+2Ch] [bp-74h]
-	int32_t v148;						// [sp+2Ch] [bp-74h]
-	int32_t v149;						// [sp+2Ch] [bp-74h]
-	int32_t v150;						// [sp+2Ch] [bp-74h]
-	bool_t v151;						// [sp+2Ch] [bp-74h]
-	bool_t v152;						// [sp+30h] [bp-70h]
-	bool_t v153;						// [sp+30h] [bp-70h]
-	bool_t v154;						// [sp+30h] [bp-70h]
-	bool_t v155;						// [sp+30h] [bp-70h]
-	bool_t v156;						// [sp+30h] [bp-70h]
-	bool_t v157;						// [sp+30h] [bp-70h]
-	bool_t v158;						// [sp+34h] [bp-6Ch]
-	bool_t v159;						// [sp+34h] [bp-6Ch]
-	bool_t v160;						// [sp+34h] [bp-6Ch]
-	bool_t v161;						// [sp+34h] [bp-6Ch]
-	bool_t v162;						// [sp+34h] [bp-6Ch]
-	bool_t v163;						// [sp+34h] [bp-6Ch]
-	bool_t v164;						// [sp+38h] [bp-68h]
-	bool_t v165;						// [sp+38h] [bp-68h]
-	bool_t v166;						// [sp+38h] [bp-68h]
-	bool_t v167;						// [sp+38h] [bp-68h]
-	bool_t v168;						// [sp+38h] [bp-68h]
-	int32_t v169;						// [sp+3Ch] [bp-64h]
-	bool_t v170;						// [sp+40h] [bp-60h]
-	bool_t v171;						// [sp+44h] [bp-5Ch]
 
-	this->field_23 = 1;
-	v170 = tile != Tile::grass;
-	if(!this->disableCulling && !tile->shouldRenderFace(this->levelSource, x, y - 1, z, 0)) {
-		v12 = 0;
-		goto LABEL_21;
-	}
-	v158 = Tile::translucent[this->levelSource->getTile(x + 1, y - 1, z)];
-	v134 = z + 1;
-	v164 = Tile::translucent[this->levelSource->getTile(x - 1, y - 1, z)];
-	v146 = z - 1;
-	v140 = Tile::translucent[this->levelSource->getTile(x, y - 1, z + 1)];
-	v152 = Tile::translucent[this->levelSource->getTile(x, y - 1, z - 1)];
-	v103 = tile->getBrightness(this->levelSource, x - 1, y - 1, z);
-	v104 = tile->getBrightness(this->levelSource, x, y - 1, z - 1);
-	v105 = tile->getBrightness(this->levelSource, x, y - 1, z + 1);
-	v106 = tile->getBrightness(this->levelSource, x + 1, y - 1, z);
-	if(v152 || v164) {
-		v13 = tile->getBrightness(this->levelSource, x - 1, y - 1, v146);
-		if(!v140 && !v164) {
-			v14 = v103;
-			goto LABEL_9;
+	bool renderedSomething = 0;
+	this->enableAO = 1;
+	bool dontApplyGrassColor = tile != Tile::grass;
+	if(this->disableCulling || tile->shouldRenderFace(this->levelSource, x, y - 1, z, 0)) {
+		bool xp = Tile::translucent[this->levelSource->getTile(x + 1, y - 1, z)];
+		bool xn = Tile::translucent[this->levelSource->getTile(x - 1, y - 1, z)];
+		bool zp = Tile::translucent[this->levelSource->getTile(x, y - 1, z + 1)];
+		bool zn = Tile::translucent[this->levelSource->getTile(x, y - 1, z - 1)];
+		float b_xn = tile->getBrightness(this->levelSource, x - 1, y - 1, z);
+		float b_zn = tile->getBrightness(this->levelSource, x, y - 1, z - 1);
+		float b_zp = tile->getBrightness(this->levelSource, x, y - 1, z + 1);
+		float b_xp = tile->getBrightness(this->levelSource, x + 1, y - 1, z);
+
+		float v13 = zn || xn ? tile->getBrightness(this->levelSource, x - 1, y - 1, z - 1) : b_xn;
+		float v14 = zp || xn ? tile->getBrightness(this->levelSource, x - 1, y - 1, z + 1) : b_xn;
+		float v15 = zn || xp ? tile->getBrightness(this->levelSource, x + 1, y - 1, z - 1) : b_xp;
+		float v16 = zp || xp ? tile->getBrightness(this->levelSource, x + 1, y - 1, z + 1) : b_xp;
+		float v17 = tile->getBrightness(this->levelSource, x, y - 1, z);
+
+		float v18 = (float)((float)((float)(v14 + b_xn) + b_zp) + v17) * 0.25;
+		float v19 = (float)((float)((float)(b_zp + v17) + v16) + b_xp) * 0.25;
+		float v20 = (float)((float)((float)(v17 + b_zn) + b_xp) + v15) * 0.25;
+		float v21 = (float)((float)((float)(b_xn + v13) + v17) + b_zn) * 0.25;
+
+		if(dontApplyGrassColor) {
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = r * 0.5;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = g * 0.5;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = b * 0.5;
+		} else {
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = 0.5;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = 0.5;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = 0.5;
 		}
-	} else {
-		if(!v140) {
-			v13 = v103;
-			v14 = v103;
-			if(v158) {
-				goto LABEL_11;
-			}
-			goto LABEL_147;
-		}
-		v13 = v103;
+
+		renderedSomething = 1;
+
+		this->redXeYs = this->redXeYs * v18;
+		this->greenXeYs = this->greenXeYs * v18;
+		this->blueXeYs = this->blueXeYs * v18;
+
+		this->redXsYs = this->redXsYs * v21;
+		this->greenXsYs = this->greenXsYs * v21;
+		this->blueXsYs = this->blueXsYs * v21;
+
+		this->redXsYe = this->redXsYe * v20;
+		this->greenXsYe = this->greenXsYe * v20;
+		this->blueXsYe = this->blueXsYe * v20;
+
+		this->redXeYe = this->redXeYe * v19;
+		this->greenXeYe = this->greenXeYe * v19;
+		this->blueXeYe = this->blueXeYe * v19;
+		this->renderFaceDown(tile, (float)x, (float)y, (float)z, *tile->getTexture(this->levelSource, x, y, z, 0));
 	}
-	v14 = tile->getBrightness(this->levelSource, x - 1, y - 1, v134);
-LABEL_9:
-	if(v152 || v158) {
-LABEL_11:
-		v15 = tile->getBrightness(this->levelSource, x + 1, y - 1, v146);
-		if(v140 || v158) {
-			goto LABEL_15;
-		}
-LABEL_16:
-		v16 = v106;
-		goto LABEL_17;
-	}
-	if(!v140) {
-LABEL_147:
-		v15 = v106;
-		goto LABEL_16;
-	}
-	v15 = v106;
-LABEL_15:
-	v16 = tile->getBrightness(this->levelSource, x + 1, y - 1, v134);
-LABEL_17:
-	v17 = tile->getBrightness(this->levelSource, x, y - 1, z);
-	v18 = (float)((float)((float)(v14 + v103) + v105) + v17) * 0.25;
-	v19 = (float)((float)((float)(v105 + v17) + v16) + v106) * 0.25;
-	v20 = (float)((float)((float)(v17 + v104) + v106) + v15) * 0.25;
-	v21 = (float)((float)((float)(v103 + v13) + v17) + v104) * 0.25;
-	v22 = 0.5;
-	if(v170) {
-		this->field_30 = r * 0.5;
-		this->field_2C = r * 0.5;
-		this->field_28 = r * 0.5;
-		this->field_24 = r * 0.5;
-		v22 = b * 0.5;
-		this->field_40 = g * 0.5;
-		this->field_3C = g * 0.5;
-		this->field_38 = g * 0.5;
-		this->field_34 = g * 0.5;
-	} else {
-		this->field_30 = 0.5;
-		this->field_2C = 0.5;
-		this->field_28 = 0.5;
-		this->field_24 = 0.5;
-		this->field_40 = 0.5;
-		this->field_3C = 0.5;
-		this->field_38 = 0.5;
-		this->field_34 = 0.5;
-	}
-	v23 = this->field_24 * v18;
-	this->field_44 = v22;
-	this->field_48 = v22;
-	this->field_4C = v22;
-	this->field_50 = v22;
-	levelSource = this->levelSource;
-	v12 = 1;
-	this->field_24 = v23;
-	this->field_34 = this->field_34 * v18;
-	v25 = this->field_28 * v21;
-	this->field_44 = this->field_44 * v18;
-	this->field_28 = v25;
-	this->field_38 = this->field_38 * v21;
-	v26 = this->field_2C * v20;
-	this->field_48 = this->field_48 * v21;
-	this->field_2C = v26;
-	this->field_3C = this->field_3C * v20;
-	v27 = this->field_30 * v19;
-	this->field_4C = this->field_4C * v20;
-	this->field_30 = v27;
-	this->field_40 = this->field_40 * v19;
-	this->field_50 = this->field_50 * v19;
-	v28 = tile->getTexture(levelSource, x, y, z, 0);
-	this->renderFaceDown(tile, (float)x, (float)y, (float)z, *v28);
-LABEL_21:
 	if(this->disableCulling || tile->shouldRenderFace(this->levelSource, x, y + 1, z, 1)) {
-		v135 = x + 1;
-		v153 = Tile::translucent[this->levelSource->getTile(x + 1, y + 1, z)];
-		v141 = z + 1;
-		v159 = Tile::translucent[this->levelSource->getTile(x - 1, y + 1, z)];
-		v147 = z - 1;
-		v165 = Tile::translucent[this->levelSource->getTile(x, y + 1, z + 1)];
-		v171 = Tile::translucent[this->levelSource->getTile(x, y + 1, z - 1)];
-		v107 = tile->getThickness();
-		v108 = tile->getBrightness(this->levelSource, x - 1, (v107 <= 0.0) + y, z);
-		v109 = tile->getBrightness(this->levelSource, x + 1, (v107 <= 0.0) + y, z);
-		v110 = tile->getBrightness(this->levelSource, x, (v107 <= 0.0) + y, z - 1);
-		v111 = tile->getBrightness(this->levelSource, x, (v107 <= 0.0) + y, z + 1);
-		if(v171 || v159) {
-			v29 = tile->getBrightness(this->levelSource, x - 1, (v107 <= 0.0) + y, v147);
-			if(v171) {
-				goto LABEL_29;
-			}
-		} else {
-			v29 = v108;
-		}
-		if(!v153) {
-			v30 = v109;
-			goto LABEL_31;
-		}
-LABEL_29:
-		v30 = tile->getBrightness(this->levelSource, v135, (v107 <= 0.0) + y, v147);
-LABEL_31:
-		if(v165 || v159) {
-			v31 = tile->getBrightness(this->levelSource, x - 1, (v107 <= 0.0) + y, v141);
-			if(v165) {
-				goto LABEL_37;
-			}
-		} else {
-			v31 = v108;
-		}
-		if(!v153) {
-			v32 = v109;
-			goto LABEL_39;
-		}
-LABEL_37:
-		v32 = tile->getBrightness(this->levelSource, v135, (v107 <= 0.0) + y, v141);
-LABEL_39:
-		v12 = 1;
-		v33 = tile->getBrightness(this->levelSource, x, y + 1, z);
-		v34 = this->levelSource;
-		v35 = v33 + v110;
-		v36 = (float)((float)((float)(v111 + v33) + v32) + v109) * 0.25;
-		v37 = (float)((float)(v108 + v29) + v33) + v110;
-		this->field_24 = r * v36;
-		v38 = (float)((float)(v35 + v109) + v30) * 0.25;
-		this->field_34 = g * v36;
-		v39 = (float)((float)((float)(v31 + v108) + v111) + v33) * 0.25;
-		this->field_28 = r * v38;
-		this->field_38 = g * v38;
-		this->field_2C = r * (float)(v37 * 0.25);
-		this->field_3C = g * (float)(v37 * 0.25);
-		this->field_4C = b * (float)(v37 * 0.25);
-		this->field_30 = r * v39;
-		this->field_44 = b * v36;
-		this->field_48 = b * v38;
-		this->field_40 = g * v39;
-		this->field_50 = b * v39;
-		v40 = tile->getTexture(v34, x, y, z, 1);
-		this->renderFaceUp(tile, (float)x, (float)y, (float)z, *v40);
+		bool xp = Tile::translucent[this->levelSource->getTile(x + 1, y + 1, z)];
+		bool xn = Tile::translucent[this->levelSource->getTile(x - 1, y + 1, z)];
+		bool zp = Tile::translucent[this->levelSource->getTile(x, y + 1, z + 1)];
+		bool zn = Tile::translucent[this->levelSource->getTile(x, y + 1, z - 1)];
+		float thick = tile->getThickness();
+		float b_xn = tile->getBrightness(this->levelSource, x - 1, (thick <= 0.0) + y, z);
+		float b_xp = tile->getBrightness(this->levelSource, x + 1, (thick <= 0.0) + y, z);
+		float b_zn = tile->getBrightness(this->levelSource, x, (thick <= 0.0) + y, z - 1);
+		float b_zp = tile->getBrightness(this->levelSource, x, (thick <= 0.0) + y, z + 1);
+
+		float v29 = zn || xn ? tile->getBrightness(this->levelSource, x - 1, (thick <= 0.0) + y, z - 1) : b_xn;
+		float v30 = zn || xp ? tile->getBrightness(this->levelSource, x + 1, (thick <= 0.0) + y, z - 1) : b_xp;
+		float v31 = zp || xn ? tile->getBrightness(this->levelSource, x - 1, (thick <= 0.0) + y, z + 1) : b_xn;
+		float v32 = zp || xp ? tile->getBrightness(this->levelSource, x + 1, (thick <= 0.0) + y, z + 1) : b_xp;
+		float v33 = tile->getBrightness(this->levelSource, x, y + 1, z);
+
+		renderedSomething = 1;
+		float v36 = (float)((float)((float)(b_zp + v33) + v32) + b_xp) * 0.25;
+		float v37 = (float)((float)((float)(b_xn + v29) + v33) + b_zn) * 0.25;
+		float v38 = (float)((float)((float)(v33 + b_zn) + b_xp) + v30) * 0.25;
+		float v39 = (float)((float)((float)(v31 + b_xn) + b_zp) + v33) * 0.25;
+
+		this->redXeYs = r * v36;
+		this->greenXeYs = g * v36;
+		this->blueXeYs = b * v36;
+
+		this->redXsYs = r * v38;
+		this->greenXsYs = g * v38;
+		this->blueXsYs = b * v38;
+
+		this->redXsYe = r * v37;
+		this->greenXsYe = g * v37;
+		this->blueXsYe = b * v37;
+
+		this->redXeYe = r * v39;
+		this->greenXeYe = g * v39;
+		this->blueXeYe = b * v39;
+
+		this->renderFaceUp(tile, (float)x, (float)y, (float)z, *tile->getTexture(this->levelSource, x, y, z, 1));
 	}
+
 	if(this->disableCulling || tile->shouldRenderFace(this->levelSource, x, y, z - 1, 2)) {
-		v136 = x + 1;
-		v154 = Tile::translucent[this->levelSource->getTile(x + 1, y, z - 1)];
-		v142 = y + 1;
-		v160 = Tile::translucent[this->levelSource->getTile(x - 1, y, z - 1)];
-		v148 = y - 1;
-		v166 = Tile::translucent[this->levelSource->getTile(x, y + 1, z - 1)];
-		v112 = Tile::translucent[this->levelSource->getTile(x, y - 1, z - 1)];
-		v113 = tile->getBrightness(this->levelSource, x - 1, y, z - 1);
-		v114 = tile->getBrightness(this->levelSource, x, y - 1, z - 1);
-		v115 = tile->getBrightness(this->levelSource, x, y + 1, z - 1);
-		v116 = tile->getBrightness(this->levelSource, x + 1, y, z - 1);
-		if(v160 || v112) {
-			v41 = tile->getBrightness(this->levelSource, x - 1, v148, z - 1);
-			if(v160) {
-				goto LABEL_48;
-			}
+		bool xp = Tile::translucent[this->levelSource->getTile(x + 1, y, z - 1)];
+		bool xn = Tile::translucent[this->levelSource->getTile(x - 1, y, z - 1)];
+		bool yp = Tile::translucent[this->levelSource->getTile(x, y + 1, z - 1)];
+		bool yn = Tile::translucent[this->levelSource->getTile(x, y - 1, z - 1)];
+		float b_xn = tile->getBrightness(this->levelSource, x - 1, y, z - 1);
+		float b_yn = tile->getBrightness(this->levelSource, x, y - 1, z - 1);
+		float b_yp = tile->getBrightness(this->levelSource, x, y + 1, z - 1);
+		float b_xp = tile->getBrightness(this->levelSource, x + 1, y, z - 1);
+
+		float v41 = xn || yn ? tile->getBrightness(this->levelSource, x - 1, y - 1, z - 1) : b_xn;
+		float v42 = xn || yp ? tile->getBrightness(this->levelSource, x - 1, y + 1, z - 1) : b_xn;
+		float v43 = xp || yn ? tile->getBrightness(this->levelSource, x + 1, y - 1, z - 1) : b_xp;
+		float v44 = xp || yp ? tile->getBrightness(this->levelSource, x + 1, y + 1, z - 1) : b_xp;
+		float v45 = tile->getBrightness(this->levelSource, x, y, z - 1);
+		float v47 = (float)((float)((float)(b_xn + v42) + v45) + b_yp) * 0.25;
+		float v48 = (float)((float)((float)(v45 + b_yp) + b_xp) + v44) * 0.25;
+		float v49 = (float)((float)((float)(b_yn + v45) + v43) + b_xp) * 0.25;
+		float v50 = (float)((float)((float)(v41 + b_xn) + b_yn) + v45) * 0.25;
+
+		if(dontApplyGrassColor) {
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = r * 0.8;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = g * 0.8;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = b * 0.8;
 		} else {
-			v41 = v113;
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = 0.8;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = 0.8;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = 0.8;
 		}
-		if(!v166) {
-			v42 = v113;
-			goto LABEL_50;
-		}
-LABEL_48:
-		v42 = tile->getBrightness(this->levelSource, x - 1, v142, z - 1);
-LABEL_50:
-		if(v154 || v112) {
-			v43 = tile->getBrightness(this->levelSource, v136, v148, z - 1);
-			if(v154) {
-				goto LABEL_56;
-			}
-		} else {
-			v43 = v116;
-		}
-		if(!v166) {
-			v44 = v116;
-			goto LABEL_58;
-		}
-LABEL_56:
-		v44 = tile->getBrightness(this->levelSource, v136, v142, z - 1);
-LABEL_58:
-		v45 = tile->getBrightness(this->levelSource, x, y, z - 1);
-		v46 = 0.8;
-		v47 = (float)((float)((float)(v113 + v42) + v45) + v115) * 0.25;
-		v48 = (float)((float)((float)(v45 + v115) + v116) + v44) * 0.25;
-		v49 = (float)((float)((float)(v114 + v45) + v43) + v116) * 0.25;
-		v50 = (float)((float)((float)(v41 + v113) + v114) + v45) * 0.25;
-		if(v170) {
-			this->field_30 = r * 0.8;
-			this->field_2C = r * 0.8;
-			this->field_28 = r * 0.8;
-			this->field_24 = r * 0.8;
-			v46 = b * 0.8;
-			this->field_40 = g * 0.8;
-			this->field_3C = g * 0.8;
-			this->field_38 = g * 0.8;
-			this->field_34 = g * 0.8;
-		} else {
-			this->field_30 = 0.8;
-			this->field_2C = 0.8;
-			this->field_28 = 0.8;
-			this->field_24 = 0.8;
-			this->field_40 = 0.8;
-			this->field_3C = 0.8;
-			this->field_38 = 0.8;
-			this->field_34 = 0.8;
-		}
-		v51 = this->field_24 * v47;
-		this->field_44 = v46;
-		this->field_48 = v46;
-		this->field_4C = v46;
-		this->field_50 = v46;
-		v52 = this->levelSource;
-		v12 = 1;
-		this->field_24 = v51;
-		this->field_34 = this->field_34 * v47;
-		v53 = this->field_28 * v48;
-		this->field_44 = this->field_44 * v47;
-		this->field_28 = v53;
-		this->field_38 = this->field_38 * v48;
-		v54 = this->field_2C * v49;
-		this->field_48 = this->field_48 * v48;
-		this->field_2C = v54;
-		this->field_3C = this->field_3C * v49;
-		v55 = this->field_30 * v50;
-		this->field_4C = this->field_4C * v49;
-		this->field_30 = v55;
-		this->field_40 = this->field_40 * v50;
-		this->field_50 = this->field_50 * v50;
-		v56 = tile->getTexture(v52, x, y, z, 2);
-		this->renderNorth(tile, (float)x, (float)y, (float)z, *v56);
+		renderedSomething = 1;
+		this->redXeYs = this->redXeYs * v47;
+		this->greenXeYs = this->greenXeYs * v47;
+		this->blueXeYs = this->blueXeYs * v47;
+
+		this->redXsYs = this->redXsYs * v48;
+		this->greenXsYs = this->greenXsYs * v48;
+		this->blueXsYs = this->blueXsYs * v48;
+
+		this->redXsYe = this->redXsYe * v49;
+		this->greenXsYe = this->greenXsYe * v49;
+		this->blueXsYe = this->blueXsYe * v49;
+
+		this->redXeYe = this->redXeYe * v50;
+		this->greenXeYe = this->greenXeYe * v50;
+		this->blueXeYe = this->blueXeYe * v50;
+
+		this->renderNorth(tile, (float)x, (float)y, (float)z, *tile->getTexture(this->levelSource, x, y, z, 2));
 	}
 	if(this->disableCulling || tile->shouldRenderFace(this->levelSource, x, y, z + 1, 3)) {
-		v137 = x + 1;
-		v155 = Tile::translucent[this->levelSource->getTile(x + 1, y, z + 1)];
-		v143 = y + 1;
-		v161 = Tile::translucent[this->levelSource->getTile(x - 1, y, z + 1)];
-		v149 = y - 1;
-		v167 = Tile::translucent[this->levelSource->getTile(x, y + 1, z + 1)];
-		v117 = Tile::translucent[this->levelSource->getTile(x, y - 1, z + 1)];
-		v118 = tile->getBrightness(this->levelSource, x - 1, y, z + 1);
-		v119 = tile->getBrightness(this->levelSource, x + 1, y, z + 1);
-		v120 = tile->getBrightness(this->levelSource, x, y - 1, z + 1);
-		v121 = tile->getBrightness(this->levelSource, x, y + 1, z + 1);
-		if(v161 || v117) {
-			v57 = tile->getBrightness(this->levelSource, x - 1, v149, z + 1);
-			if(v161) {
-				goto LABEL_70;
-			}
+		bool xp = Tile::translucent[this->levelSource->getTile(x + 1, y, z + 1)];
+		bool xn = Tile::translucent[this->levelSource->getTile(x - 1, y, z + 1)];
+		bool yp = Tile::translucent[this->levelSource->getTile(x, y + 1, z + 1)];
+		bool yn = Tile::translucent[this->levelSource->getTile(x, y - 1, z + 1)];
+		float b_xn = tile->getBrightness(this->levelSource, x - 1, y, z + 1);
+		float b_xp = tile->getBrightness(this->levelSource, x + 1, y, z + 1);
+		float b_yn = tile->getBrightness(this->levelSource, x, y - 1, z + 1);
+		float b_yp = tile->getBrightness(this->levelSource, x, y + 1, z + 1);
+
+		float v57 = xn || yn ? tile->getBrightness(this->levelSource, x - 1, y - 1, z + 1) : b_xn;
+		float v58 = xn || yp ? tile->getBrightness(this->levelSource, x - 1, y + 1, z + 1) : b_xn;
+		float v59 = xp || yn ? tile->getBrightness(this->levelSource, x + 1, y - 1, z + 1) : b_xp;
+		float v60 = xp || yp ? tile->getBrightness(this->levelSource, x + 1, y + 1, z + 1) : b_xp;
+		float v61 = tile->getBrightness(this->levelSource, x, y, z + 1);
+
+		float v63 = (float)((float)((float)(b_xn + v58) + v61) + b_yp) * 0.25;
+		float v64 = (float)((float)((float)(v61 + b_yp) + b_xp) + v60) * 0.25;
+		float v65 = (float)((float)((float)(b_yn + v61) + v59) + b_xp) * 0.25;
+		float v66 = (float)((float)((float)(v57 + b_xn) + b_yn) + v61) * 0.25;
+		if(dontApplyGrassColor) {
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = r * 0.8;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = g * 0.8;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = b * 0.8;
 		} else {
-			v57 = v118;
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = 0.8;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = 0.8;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = 0.8;
 		}
-		if(!v167) {
-			v58 = v118;
-			goto LABEL_72;
-		}
-LABEL_70:
-		v58 = tile->getBrightness(this->levelSource, x - 1, v143, z + 1);
-LABEL_72:
-		if(v155 || v117) {
-			v59 = tile->getBrightness(this->levelSource, v137, v149, z + 1);
-			if(v155) {
-				goto LABEL_78;
-			}
-		} else {
-			v59 = v119;
-		}
-		if(!v167) {
-			v60 = v119;
-			goto LABEL_80;
-		}
-LABEL_78:
-		v60 = tile->getBrightness(this->levelSource, v137, v143, z + 1);
-LABEL_80:
-		v61 = tile->getBrightness(this->levelSource, x, y, z + 1);
-		v62 = 0.8;
-		v63 = (float)((float)((float)(v118 + v58) + v61) + v121) * 0.25;
-		v64 = (float)((float)((float)(v61 + v121) + v119) + v60) * 0.25;
-		v65 = (float)((float)((float)(v120 + v61) + v59) + v119) * 0.25;
-		v66 = (float)((float)((float)(v57 + v118) + v120) + v61) * 0.25;
-		if(v170) {
-			this->field_30 = r * 0.8;
-			this->field_2C = r * 0.8;
-			this->field_28 = r * 0.8;
-			this->field_24 = r * 0.8;
-			v62 = b * 0.8;
-			this->field_40 = g * 0.8;
-			this->field_3C = g * 0.8;
-			this->field_38 = g * 0.8;
-			this->field_34 = g * 0.8;
-		} else {
-			this->field_30 = 0.8;
-			this->field_2C = 0.8;
-			this->field_28 = 0.8;
-			this->field_24 = 0.8;
-			this->field_40 = 0.8;
-			this->field_3C = 0.8;
-			this->field_38 = 0.8;
-			this->field_34 = 0.8;
-		}
-		v67 = this->field_24 * v63;
-		this->field_44 = v62;
-		this->field_48 = v62;
-		this->field_4C = v62;
-		this->field_50 = v62;
-		v68 = this->levelSource;
-		v12 = 1;
-		this->field_24 = v67;
-		this->field_34 = this->field_34 * v63;
-		v69 = this->field_28 * v66;
-		this->field_44 = this->field_44 * v63;
-		this->field_28 = v69;
-		this->field_38 = this->field_38 * v66;
-		v70 = this->field_2C * v65;
-		this->field_48 = this->field_48 * v66;
-		this->field_2C = v70;
-		this->field_3C = this->field_3C * v65;
-		v71 = this->field_30 * v64;
-		this->field_4C = this->field_4C * v65;
-		this->field_30 = v71;
-		this->field_40 = this->field_40 * v64;
-		this->field_50 = this->field_50 * v64;
-		v133 = *tile->getTexture(v68, x, y, z, 3);
-		this->renderSouth(tile, (float)x, (float)y, (float)z, v133);
+
+		renderedSomething = 1;
+		this->redXeYs = this->redXeYs * v63;
+		this->greenXeYs = this->greenXeYs * v63;
+		this->blueXeYs = this->blueXeYs * v63;
+
+		this->redXsYs = this->redXsYs * v66;
+		this->greenXsYs = this->greenXsYs * v66;
+		this->blueXsYs = this->blueXsYs * v66;
+
+		this->redXsYe = this->redXsYe * v65;
+		this->greenXsYe = this->greenXsYe * v65;
+		this->blueXsYe = this->blueXsYe * v65;
+
+		this->redXeYe = this->redXeYe * v64;
+		this->greenXeYe = this->greenXeYe * v64;
+		this->blueXeYe = this->blueXeYe * v64;
+
+		this->renderSouth(tile, (float)x, (float)y, (float)z, *tile->getTexture(this->levelSource, x, y, z, 3));
 	}
 	if(this->disableCulling || tile->shouldRenderFace(this->levelSource, x - 1, y, z, 4)) {
-		v138 = y - 1;
-		v156 = Tile::translucent[this->levelSource->getTile(x - 1, y + 1, z)];
-		v144 = z - 1;
-		v162 = Tile::translucent[this->levelSource->getTile(x - 1, y - 1, z)];
-		v150 = z + 1;
-		v168 = Tile::translucent[this->levelSource->getTile(x - 1, y, z - 1)];
-		v122 = Tile::translucent[this->levelSource->getTile(x - 1, y, z + 1)];
-		v123 = tile->getBrightness(this->levelSource, x - 1, y - 1, z);
-		v124 = tile->getBrightness(this->levelSource, x - 1, y, z - 1);
-		v125 = tile->getBrightness(this->levelSource, x - 1, y, z + 1);
-		v126 = tile->getBrightness(this->levelSource, x - 1, y + 1, z);
-		if(v168 || v162) {
-			v72 = tile->getBrightness(this->levelSource, x - 1, v138, v144);
-			if(!v122 && !v162) {
-				v73 = v125;
-LABEL_92:
-				if(v168 || v156) {
-LABEL_94:
-					v74 = tile->getBrightness(this->levelSource, x - 1, y + 1, v144);
-					if(v122 || v156) {
-						goto LABEL_98;
-					}
-LABEL_99:
-					v75 = v125;
-					goto LABEL_100;
-				}
-				if(v122) {
-					v74 = v124;
-LABEL_98:
-					v75 = tile->getBrightness(this->levelSource, x - 1, y + 1, v150);
-LABEL_100:
-					v76 = tile->getBrightness(this->levelSource, x - 1, y, z);
-					v77 = 0.6;
-					v78 = (float)((float)((float)(v123 + v73) + v76) + v125) * 0.25;
-					v79 = (float)((float)((float)(v76 + v125) + v126) + v75) * 0.25;
-					v80 = (float)((float)((float)(v124 + v76) + v74) + v126) * 0.25;
-					v81 = (float)((float)((float)(v72 + v123) + v124) + v76) * 0.25;
-					if(v170) {
-						this->field_30 = r * 0.6;
-						this->field_2C = r * 0.6;
-						this->field_28 = r * 0.6;
-						this->field_24 = r * 0.6;
-						v77 = b * 0.6;
-						this->field_40 = g * 0.6;
-						this->field_3C = g * 0.6;
-						this->field_38 = g * 0.6;
-						this->field_34 = g * 0.6;
-					} else {
-						this->field_30 = 0.6;
-						this->field_2C = 0.6;
-						this->field_28 = 0.6;
-						this->field_24 = 0.6;
-						this->field_40 = 0.6;
-						this->field_3C = 0.6;
-						this->field_38 = 0.6;
-						this->field_34 = 0.6;
-					}
-					v82 = this->field_24 * v79;
-					this->field_44 = v77;
-					this->field_48 = v77;
-					this->field_4C = v77;
-					this->field_50 = v77;
-					v83 = this->levelSource;
-					v12 = 1;
-					this->field_24 = v82;
-					this->field_34 = this->field_34 * v79;
-					v84 = this->field_28 * v80;
-					this->field_44 = this->field_44 * v79;
-					this->field_28 = v84;
-					this->field_38 = this->field_38 * v80;
-					v85 = this->field_2C * v81;
-					this->field_48 = this->field_48 * v80;
-					this->field_2C = v85;
-					this->field_3C = this->field_3C * v81;
-					v86 = this->field_30 * v78;
-					this->field_4C = this->field_4C * v81;
-					this->field_30 = v86;
-					this->field_40 = this->field_40 * v78;
-					this->field_50 = this->field_50 * v78;
-					v87 = tile->getTexture(v83, x, y, z, 4);
-					this->renderWest(tile, (float)x, (float)y, (float)z, *v87);
-					goto LABEL_104;
-				}
-LABEL_149:
-				v74 = v124;
-				goto LABEL_99;
-			}
+		bool yp = Tile::translucent[this->levelSource->getTile(x - 1, y + 1, z)];
+		bool yn = Tile::translucent[this->levelSource->getTile(x - 1, y - 1, z)];
+		bool zn = Tile::translucent[this->levelSource->getTile(x - 1, y, z - 1)];
+		bool zp = Tile::translucent[this->levelSource->getTile(x - 1, y, z + 1)];
+		float b_yn = tile->getBrightness(this->levelSource, x - 1, y - 1, z);
+		float b_zn = tile->getBrightness(this->levelSource, x - 1, y, z - 1);
+		float b_zp = tile->getBrightness(this->levelSource, x - 1, y, z + 1);
+		float b_yp = tile->getBrightness(this->levelSource, x - 1, y + 1, z);
+
+		float v72 = zn || yn ? tile->getBrightness(this->levelSource, x - 1, y - 1, z - 1) : b_zn;
+		float v73 = zp || yn ? tile->getBrightness(this->levelSource, x - 1, y - 1, z + 1) : b_zp;
+		float v74 = zn || yp ? tile->getBrightness(this->levelSource, x - 1, y + 1, z - 1) : b_zn;
+		float v75 = zp || yp ? tile->getBrightness(this->levelSource, x - 1, y + 1, z + 1) : b_zp;
+		float v76 = tile->getBrightness(this->levelSource, x - 1, y, z);
+
+		float v78 = (float)((float)((float)(b_yn + v73) + v76) + b_zp) * 0.25;
+		float v79 = (float)((float)((float)(v76 + b_zp) + b_yp) + v75) * 0.25;
+		float v80 = (float)((float)((float)(b_zn + v76) + v74) + b_yp) * 0.25;
+		float v81 = (float)((float)((float)(v72 + b_yn) + b_zn) + v76) * 0.25;
+		if(dontApplyGrassColor) {
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = r * 0.6;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = g * 0.6;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = b * 0.6;
 		} else {
-			if(!v122) {
-				v72 = v124;
-				v73 = v125;
-				if(v156) {
-					goto LABEL_94;
-				}
-				goto LABEL_149;
-			}
-			v72 = v124;
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = 0.6;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = 0.6;
+			this->blueXeYs = this->blueXsYs = this->blueXsYe = this->blueXeYe = 0.6;
 		}
-		v73 = tile->getBrightness(this->levelSource, x - 1, v138, v150);
-		goto LABEL_92;
+		renderedSomething = 1;
+		this->redXeYs = this->redXeYs * v79;
+		this->greenXeYs = this->greenXeYs * v79;
+		this->blueXeYs = this->blueXeYs * v79;
+
+		this->redXsYs = this->redXsYs * v80;
+		this->greenXsYs = this->greenXsYs * v80;
+		this->blueXsYs = this->blueXsYs * v80;
+
+		this->redXsYe = this->redXsYe * v81;
+		this->greenXsYe = this->greenXsYe * v81;
+		this->blueXsYe = this->blueXsYe * v81;
+
+		this->redXeYe = this->redXeYe * v78;
+		this->greenXeYe = this->greenXeYe * v78;
+		this->blueXeYe = this->blueXeYe * v78;
+
+		this->renderWest(tile, (float)x, (float)y, (float)z, *tile->getTexture(this->levelSource, x, y, z, 4));
 	}
-LABEL_104:
+
 	if(this->disableCulling || tile->shouldRenderFace(this->levelSource, x + 1, y, z, 5)) {
-		v139 = y + 1;
-		v151 = Tile::translucent[this->levelSource->getTile(x + 1, y + 1, z)];
-		v169 = z + 1;
-		v157 = Tile::translucent[this->levelSource->getTile(x + 1, y - 1, z)];
-		v145 = z - 1;
-		v163 = Tile::translucent[this->levelSource->getTile(x + 1, y, z + 1)];
-		v127 = Tile::translucent[this->levelSource->getTile(x + 1, y, z - 1)];
-		v128 = tile->getBrightness(this->levelSource, x + 1, y - 1, z);
-		v129 = tile->getBrightness(this->levelSource, x + 1, y, z - 1);
-		v130 = tile->getBrightness(this->levelSource, x + 1, y, z + 1);
-		v131 = tile->getBrightness(this->levelSource, x + 1, y + 1, z);
-		if(v157 || v127) {
-			v88 = tile->getBrightness(this->levelSource, x + 1, y - 1, v145);
-			if(v157) {
-				goto LABEL_112;
-			}
+		bool yp = Tile::translucent[this->levelSource->getTile(x + 1, y + 1, z)];
+		bool yn = Tile::translucent[this->levelSource->getTile(x + 1, y - 1, z)];
+		bool zp = Tile::translucent[this->levelSource->getTile(x + 1, y, z + 1)];
+		bool zn = Tile::translucent[this->levelSource->getTile(x + 1, y, z - 1)];
+		float b_yn = tile->getBrightness(this->levelSource, x + 1, y - 1, z);
+		float b_zn = tile->getBrightness(this->levelSource, x + 1, y, z - 1);
+		float b_zp = tile->getBrightness(this->levelSource, x + 1, y, z + 1);
+		float b_yp = tile->getBrightness(this->levelSource, x + 1, y + 1, z);
+
+		float v88 = yn || zn ? tile->getBrightness(this->levelSource, x + 1, y - 1, z - 1) : b_zn;
+		float v89 = yn || zp ? tile->getBrightness(this->levelSource, x + 1, y - 1, z + 1) : b_zp;
+		float v90 = yp || zn ? tile->getBrightness(this->levelSource, x + 1, y + 1, z - 1) : b_zn;
+		float v91 = yp || zp ? tile->getBrightness(this->levelSource, x + 1, y + 1, z + 1) : b_zp;
+		float v92 = tile->getBrightness(this->levelSource, x + 1, y, z);
+
+		float v93 = (float)((float)((float)(b_yn + v89) + v92) + b_zp) * 0.25;
+		float v94 = (float)((float)((float)(v92 + b_zp) + b_yp) + v91) * 0.25;
+		float v95 = (float)((float)((float)(b_zn + v92) + v90) + b_yp) * 0.25;
+		float v96 = (float)((float)((float)(v88 + b_yn) + b_zn) + v92) * 0.25;
+		if(dontApplyGrassColor) {
+			this->redXeYe = this->redXsYe = this->redXsYs = this->redXeYs = r * 0.6;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = g * 0.6;
+			this->blueXeYe = this->blueXsYe = this->blueXsYs = this->blueXeYs = b * 0.6;
 		} else {
-			v88 = v129;
+			this->redXeYe = this->redXsYe = this->redXsYs =this->redXeYs = 0.6;
+			this->greenXeYe = this->greenXsYe = this->greenXsYs = this->greenXeYs = 0.6;
+			this->blueXeYe = this->blueXsYe = this->blueXsYs = this->blueXeYs = 0.6;
 		}
-		if(!v163) {
-			v89 = v130;
-			goto LABEL_114;
-		}
-LABEL_112:
-		v89 = tile->getBrightness(this->levelSource, x + 1, y - 1, v169);
-LABEL_114:
-		if(v151 || v127) {
-			v90 = tile->getBrightness(this->levelSource, x + 1, v139, v145);
-			if(v151) {
-				goto LABEL_120;
-			}
-		} else {
-			v90 = v129;
-		}
-		if(!v163) {
-			v91 = v130;
-			goto LABEL_122;
-		}
-LABEL_120:
-		v91 = tile->getBrightness(this->levelSource, x + 1, v139, v169);
-LABEL_122:
-		v92 = tile->getBrightness(this->levelSource, x + 1, y, z);
-		v93 = (float)((float)((float)(v128 + v89) + v92) + v130) * 0.25;
-		v94 = (float)((float)((float)(v92 + v130) + v131) + v91) * 0.25;
-		v95 = (float)((float)((float)(v129 + v92) + v90) + v131) * 0.25;
-		v96 = (float)((float)((float)(v88 + v128) + v129) + v92) * 0.25;
-		v97 = 0.6;
-		if(v170) {
-			this->field_30 = r * 0.6;
-			this->field_2C = r * 0.6;
-			this->field_28 = r * 0.6;
-			this->field_24 = r * 0.6;
-			this->field_40 = g * 0.6;
-			this->field_3C = g * 0.6;
-			this->field_38 = g * 0.6;
-			this->field_34 = g * 0.6;
-			v97 = b * 0.6;
-		} else {
-			this->field_30 = 0.6;
-			this->field_2C = 0.6;
-			this->field_28 = 0.6;
-			this->field_24 = 0.6;
-			this->field_40 = 0.6;
-			this->field_3C = 0.6;
-			this->field_38 = 0.6;
-			this->field_34 = 0.6;
-		}
-		this->field_50 = v97;
-		this->field_4C = v97;
-		this->field_48 = v97;
-		this->field_44 = v97;
-		v98 = this->levelSource;
-		v12 = 1;
-		this->field_24 = this->field_24 * v93;
-		this->field_34 = this->field_34 * v93;
-		v99 = this->field_28 * v96;
-		this->field_44 = this->field_44 * v93;
-		this->field_28 = v99;
-		this->field_38 = this->field_38 * v96;
-		v100 = this->field_2C * v95;
-		this->field_48 = this->field_48 * v96;
-		this->field_2C = v100;
-		this->field_3C = this->field_3C * v95;
-		v101 = this->field_30 * v94;
-		this->field_4C = this->field_4C * v95;
-		this->field_30 = v101;
-		this->field_40 = this->field_40 * v94;
-		this->field_50 = this->field_50 * v94;
-		v102 = tile->getTexture(v98, x, y, z, 5);
-		this->renderEast(tile, (float)x, (float)y, (float)z, *v102);
+
+		renderedSomething = 1;
+		this->redXeYs = this->redXeYs * v93;
+		this->greenXeYs = this->greenXeYs * v93;
+		this->blueXeYs = this->blueXeYs * v93;
+
+		this->redXsYs = this->redXsYs * v96;
+		this->greenXsYs = this->greenXsYs * v96;
+		this->blueXsYs = this->blueXsYs * v96;
+
+		this->redXsYe = this->redXsYe * v95;
+		this->greenXsYe = this->greenXsYe * v95;
+		this->blueXsYe = this->blueXsYe * v95;
+
+		this->redXeYe = this->redXeYe * v94;
+		this->greenXeYe = this->greenXeYe * v94;
+		this->blueXeYe = this->blueXeYe * v94;
+		this->renderEast(tile, (float)x, (float)y, (float)z, *tile->getTexture(this->levelSource, x, y, z, 5));
 	}
-	result = v12;
-	this->field_23 = 0;
-	this->field_68 = 0;
-	this->field_64 = 0;
-	this->field_60 = 0;
-	this->field_5C = 0;
-	this->field_58 = 0;
-	this->field_54 = 0;
-	return result;
+
+	this->enableAO = 0;
+	this->randomizeFace[0] = this->randomizeFace[1] = this->randomizeFace[2] = this->randomizeFace[3] = this->randomizeFace[4] = this->randomizeFace[5] = 0;
+	return renderedSomething;
 }
 bool_t TileRenderer::tesselateCactusInWorld(Tile* tile, int32_t x, int32_t y, int32_t z) {
 	int32_t v9; // r0
@@ -4162,13 +3719,9 @@ bool_t TileRenderer::tesselateTreeInWorld(Tile* tile, int32_t x, int32_t y, int3
 
 	v9 = this->levelSource->getData(x, y, z) & 0xC;
 	if(v9 == 4) {
-		this->field_5C = 1;
-		this->field_60 = 1;
-		this->field_58 = 1;
-		this->field_54 = 1;
+		this->randomizeFace[0] = this->randomizeFace[1] = this->randomizeFace[3] = this->randomizeFace[2] = 1;
 	} else if(v9 == 8) {
-		this->field_68 = 1;
-		this->field_64 = 1;
+		this->randomizeFace[4] = this->randomizeFace[5] = 1;
 	}
 	return this->tesselateBlockInWorld(tile, x, y, z);
 }

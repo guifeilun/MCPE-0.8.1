@@ -11,13 +11,12 @@ struct TileRenderer
 	bool_t hasUVCoords;
 	int8_t field_21;
 	bool_t disableCulling;
-	int8_t field_23;
-	float field_24, field_28, field_2C, field_30;
-	float field_34, field_38, field_3C, field_40;
-	float field_44, field_48, field_4C, field_50;
-	int32_t field_54, field_58, field_5C, field_60;
-	int32_t field_64, field_68;
-
+	bool enableAO;
+	//TODO take names from some java mod that added ao?
+	float redXeYs, redXsYs, redXsYe, redXeYe;
+	float greenXeYs, greenXsYs, greenXsYe, greenXeYe;
+	float blueXeYs, blueXsYs, blueXsYe, blueXeYe;
+	int32_t randomizeFace[6];
 	void _randomizeFaceDirection(Tile*, int32_t, float, float, float);
 	static bool_t canRender(int32_t);
 

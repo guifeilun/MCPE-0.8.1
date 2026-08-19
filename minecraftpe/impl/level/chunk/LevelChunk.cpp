@@ -303,10 +303,10 @@ void LevelChunk::setBrightness(const struct LightLayer& a2, int32_t x, int32_t y
 		this->blockLight.set(x, y, z, ll);
 	}
 }
-int32_t LevelChunk::getRawBrightness(int32_t x, int32_t y, int32_t z, int32_t a5) {
+int32_t LevelChunk::getRawBrightness(int32_t x, int32_t y, int32_t z, int32_t dark) {
 	int32_t v9 = this->skyLight.get(x, y, z);
 	if(v9 > 0) LevelChunk::touchedSky = 1;
-	int32_t v10 = v9 - a5;
+	int32_t v10 = v9 - dark;
 	int32_t res = this->blockLight.get(x, y, z);
 	if(res < v10) return v10;
 	return res;

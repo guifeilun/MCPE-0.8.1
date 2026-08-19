@@ -1005,7 +1005,7 @@ int32_t Tile::getColor(int32_t) {
 int32_t Tile::getColor(LevelSource*, int32_t, int32_t, int32_t) {
 	return 0xffffff;
 }
-float Tile::getThickness() {
+float Tile::getThickness(){
 	return 0;
 }
 bool_t Tile::isSignalSource() {
@@ -1088,6 +1088,6 @@ Tile* Tile::init() {
 	if(this->isSolidRender()) v4 = 255;
 	else v4 = 0;
 	Tile::lightBlock[this->blockID] = v4;
-	Tile::translucent[this->blockID] = this->material->blocksLight();
+	Tile::translucent[this->blockID] = !this->material->blocksLight();
 	return this;
 }

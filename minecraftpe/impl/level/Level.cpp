@@ -1070,7 +1070,7 @@ int32_t Level::getRawBrightness(int32_t x, int32_t y, int32_t z) {
 }
 int32_t Level::getRawBrightness(int32_t x, int32_t y, int32_t z, bool_t recursive) {
 	int32_t v9;			   // r0
-	int32_t RawBrightness; // r11
+	int32_t rawbright; // r11
 	int32_t v11;		   // r10
 	int32_t v12;		   // r9
 	int32_t result;		   // r0
@@ -1078,16 +1078,16 @@ int32_t Level::getRawBrightness(int32_t x, int32_t y, int32_t z, bool_t recursiv
 	int32_t v15;		   // [sp+Ch] [bp-2Ch]
 
 	if(recursive && ((v9 = this->getTile(x, y, z), v9 == Tile::stoneSlabHalf->blockID) || v9 == Tile::farmland->blockID || v9 == Tile::woodSlabHalf->blockID)) {
-		RawBrightness = this->getRawBrightness(x, y + 1, z, 0);
+		rawbright = this->getRawBrightness(x, y + 1, z, 0);
 		v15 = this->getRawBrightness(x + 1, y, z, 0);
 		v11 = this->getRawBrightness(x - 1, y, z, 0);
 		v12 = this->getRawBrightness(x, y, z + 1, 0);
 		result = this->getRawBrightness(x, y, z - 1, 0);
-		if(v15 >= RawBrightness) {
-			RawBrightness = v15;
+		if(v15 >= rawbright) {
+			rawbright = v15;
 		}
-		if(RawBrightness >= v11) {
-			v11 = RawBrightness;
+		if(rawbright >= v11) {
+			v11 = rawbright;
 		}
 		if(v11 >= v12) {
 			v12 = v11;
