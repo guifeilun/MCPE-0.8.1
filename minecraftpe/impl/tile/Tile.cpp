@@ -204,13 +204,13 @@ Tile* Tile::info_reserved6;
 Tile* Tile::fire;
 
 std::string Tile::TILE_DESCRIPTION_PREFIX = "tile.";
-bool_t Tile::translucent[256] = {1, 0};
+bool Tile::translucent[256] = {1, 0};
 
-bool_t Tile::shouldTick[256];
-bool_t Tile::isEntityTile[256];
-bool_t Tile::solid[256];
-bool_t Tile::lightEmission[256];
-bool_t Tile::lightBlock[256];
+bool Tile::shouldTick[256];
+bool Tile::isEntityTile[256];
+bool Tile::solid[256];
+int Tile::lightEmission[256];
+int Tile::lightBlock[256];
 Tile* Tile::tiles[256];
 std::shared_ptr<TextureAtlas> Tile::_terrainTextureAtlas;
 
@@ -1060,7 +1060,7 @@ Tile* Tile::setLightBlock(int32_t a2) {
 	return this;
 }
 Tile* Tile::setLightEmission(float a2) {
-	Tile::lightEmission[this->blockID] = (a2 * 15);
+	Tile::lightEmission[this->blockID] = (a2 * 15.0);
 	return this;
 }
 Tile* Tile::setExplodeable(float a2) {

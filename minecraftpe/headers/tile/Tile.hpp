@@ -149,13 +149,13 @@ struct Tile{
 	static Tile::SoundType SOUND_SILENT;
 
 	static std::string TILE_DESCRIPTION_PREFIX;
+	static bool translucent[256];
 
-	static bool_t shouldTick[256];
-	static bool_t isEntityTile[256];
-	static bool_t solid[256];
-	static bool_t lightEmission[256];
-	static bool_t lightBlock[256];
-	static bool_t translucent[256];
+	static bool shouldTick[256];
+	static bool isEntityTile[256];
+	static bool solid[256];
+	static int lightEmission[256];
+	static int lightBlock[256];
 
 	static Tile* tiles[256];
 	static std::shared_ptr<TextureAtlas> _terrainTextureAtlas;
