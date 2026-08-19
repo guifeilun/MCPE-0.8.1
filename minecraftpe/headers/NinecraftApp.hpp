@@ -2,6 +2,7 @@
 #include <Minecraft.hpp>
 #include <vector>
 #include <mutex>
+
 struct NinecraftApp : Minecraft{
 	static std::shared_ptr<TextureAtlas> _itemsTextureAtlas;
 	static std::shared_ptr<TextureAtlas> _terrainTextureAtlas;

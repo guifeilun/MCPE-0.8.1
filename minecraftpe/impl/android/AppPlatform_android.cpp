@@ -146,7 +146,9 @@ void AppPlatform_android::init(JavaVM* jvm){
 	}
 	v98.forceDetach();
 }
-void AppPlatform_android::convertOpenGlToAndroidPixels(int, int, uint*);
+void AppPlatform_android::convertOpenGlToAndroidPixels(int, int, uint*){
+	printf("AppPlatform_android::convertOpenGlToAndroidPixels - not implemented\n"); //TODO
+}
 
 AppPlatform_android::~AppPlatform_android(){}
 void AppPlatform_android::saveScreenshot(std::string const&, int, int){

@@ -11,6 +11,7 @@
 #include <network/packet/AdventureSettingsPacket.hpp>
 #include <level/chunk/LevelChunk.hpp>
 #include <string.h>
+#include <errno.h>
 
 //not used in 0.8.1, pain to implement
 std::string CommandServer::Ok = "\n", CommandServer::Fail = "Fail\n";

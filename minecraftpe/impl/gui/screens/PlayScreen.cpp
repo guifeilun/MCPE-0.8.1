@@ -60,15 +60,15 @@ std::shared_ptr<GuiElement> PlayScreen::buildJoinRealmsScreen(bool_t) {
 	printf("PlayScreen::buildJoinRealmsScreen - not implemented\n");
 	return std::shared_ptr<GuiElement>();
 }
-std::shared_ptr<GuiElement> PlayScreen::buildLocalServerList() { //TODO returns std::shared_ptr<GuiElement>
+std::shared_ptr<GuiElement> PlayScreen::buildLocalServerList() {
 	this->field_50 = 0;
 	bool isEditMode = this->isEditMode();
 
 	if(!this->field_1F4.get()) {
 		this->field_1F4 = std::shared_ptr<PackedScrollContainer>(new PackedScrollContainer(0, 0, 0));
 	}
-	//TODO check is it actually dynamic_pointer_cast
-	std::shared_ptr<PackedScrollContainer> v31 = std::dynamic_pointer_cast<PackedScrollContainer>(this->field_1F4);
+	//TODO check
+	std::shared_ptr<PackedScrollContainer> v31(*(std::shared_ptr<PackedScrollContainer>*)&this->field_1F4);
 	v31.get()->clearAll();
 	std::unordered_map<int, ExternalServer> servers = *this->minecraft->externalServerFile->getExternalServers();
 	for(auto server: servers) {
@@ -104,7 +104,7 @@ std::shared_ptr<GuiElement> PlayScreen::buildMCOServerList() {
 	if(!this->field_1FC) {
 		this->field_1FC = std::shared_ptr<PackedScrollContainer>(new PackedScrollContainer(0, 0, 0));
 	}
-	std::shared_ptr<PackedScrollContainer> v23 = std::dynamic_pointer_cast<PackedScrollContainer>(this->field_1FC);
+	std::shared_ptr<PackedScrollContainer> v23(*(std::shared_ptr<PackedScrollContainer>*)&this->field_1FC);
 	v23->clearAll();
 	//TODO
 	printf("PlayScreen::buildMCOServerList - not implemented\n");

@@ -29,7 +29,10 @@ LoginInformation MCOParser::parseMCOAccountValidSessionReturnValue(const std::st
 	ret.profileName = v7.get("name", Json::Value("")).asString();
 	return ret;
 }
-std::unordered_map<int64_t, MCOServerListItem> MCOParser::parseServerList(const std::string& a3);
+std::unordered_map<int64_t, MCOServerListItem> MCOParser::parseServerList(const std::string& a3){
+	printf("MCOParser::parseServerList - not implemented\n");
+	return {};
+}
 void MCOParser::parseStatus(const std::string& a2, bool& buyServerEnabled, bool& createServersEnabled, bool& serviceEnabled) {
 	Json::Value v8;
 	Json::Reader v11;

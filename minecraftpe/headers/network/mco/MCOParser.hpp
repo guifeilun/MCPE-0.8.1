@@ -2,8 +2,8 @@
 #include <_types.h>
 #include <string>
 #include <unordered_map>
+#include <network/mco/MCOServerListItem.hpp>
 
-struct MCOServerListItem;
 struct LoginInformation;
 struct MCOParser
 {

@@ -3,7 +3,7 @@
 
 #ifdef USEGLES
 #include <GLES/gl.h>
-#include <GLES/egl.h>
+#include <EGL/egl.h>
 #include <GLES/glext.h>
 
 #ifdef __cplusplus

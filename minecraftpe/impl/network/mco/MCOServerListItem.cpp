@@ -1,7 +1,11 @@
 #include <network/mco/MCOServerListItem.hpp>
 
-MCOServerListItem::MCOServerListItem(const MCOServerListItem&);
-MCOServerListItem::MCOServerListItem(MCOServerListItem&&);
+MCOServerListItem::MCOServerListItem(const MCOServerListItem&){
+	printf("MCOServerListItem::MCOServerListItem(const MCOServerListItem&) - not implemented\n");
+}
+MCOServerListItem::MCOServerListItem(MCOServerListItem&&){
+	printf("MCOServerListItem::MCOServerListItem(MCOServerListItem&&) - not implemented\n");
+}
 MCOServerListItem::MCOServerListItem() {
 	this->worldName = "My World";
 	this->gamemodeName = "creative";
@@ -19,6 +23,9 @@ MCOServerListItem& MCOServerListItem::operator=(const MCOServerListItem& a2) {
 	this->field_2C = a2.field_2C;
 	return *this;
 }
-MCOServerListItem& MCOServerListItem::operator=(MCOServerListItem&&);
+MCOServerListItem& MCOServerListItem::operator=(MCOServerListItem&&){
+	printf("MCOServerListItem::operator=(MCOServerListItem&&) - not implemented\n");
+	return *this;
+}
 MCOServerListItem::~MCOServerListItem() {
 }

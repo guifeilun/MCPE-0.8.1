@@ -1,5 +1,6 @@
 #pragma once
 #include <_types.h>
+#include <string>
 
 struct ConnectedClient{
 	int sock;

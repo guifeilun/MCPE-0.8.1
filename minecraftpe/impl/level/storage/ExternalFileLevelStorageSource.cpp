@@ -93,11 +93,9 @@ void ExternalFileLevelStorageSource::deleteLevel(const std::string& a2) {
 	DeleteDirectory(this->getFullPath(a2), 1);
 }
 void ExternalFileLevelStorageSource::renameLevel(const std::string&, const std::string&)
-#ifdef IMTOOLAZYTOFIX16ERRS
 {
 	printf("ExternalFileLevelStorageSource::renameLevel - not implemented\n");
 }
-#endif
 ;
 bool_t ExternalFileLevelStorageSource::isConvertible(const std::string&) {
 	return 0;
