@@ -10,6 +10,9 @@ struct RenderCall
 	std::string field_2C;
 	bool_t field_30 = 0, field_31 = 0, field_32 = 0;
 	int8_t field_33 = 0;
-	RenderCall();//inlined
+	RenderCall(){
+		//TODO memset to zero before constructor called? - is there even a constructor?
+		this->field_31 = this->field_32 = 0;
+	}
 	~RenderCall();
 };

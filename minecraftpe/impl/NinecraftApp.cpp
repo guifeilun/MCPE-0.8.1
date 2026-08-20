@@ -28,7 +28,7 @@
 #include <tile/Tile.hpp>
 #include <tile/entity/TileEntity.hpp>
 #include <tile/material/Material.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <input/Multitouch.hpp>
 
 std::shared_ptr<TextureAtlas> NinecraftApp::_itemsTextureAtlas;

@@ -18,7 +18,7 @@ struct Sheep: Animal
 
 	virtual ~Sheep();
 	virtual bool_t interactWithPlayer(Player*);
-	virtual void handleEntityEvent(int8_t);
+	virtual void handleEntityEvent(char);
 	virtual int32_t getEntityTypeId() const;
 	virtual void readAdditionalSaveData(CompoundTag*);
 	virtual void addAdditonalSaveData(CompoundTag*);

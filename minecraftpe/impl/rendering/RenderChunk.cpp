@@ -4,7 +4,7 @@
 #include <math.h>
 #include <rendering/Tesselator.hpp>
 #include <entity/Entity.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <level/chunk/LevelChunk.hpp>
 #include <level/Region.hpp>
 #include <rendering/TileRenderer.hpp>

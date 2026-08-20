@@ -1,8 +1,10 @@
 #pragma once
 #include <_types.h>
-#include <unigl.h>
+#include <unigl.hpp>
 
 struct BlendFunctionState{
-	BlendFunctionState(GLenum sfactor, GLenum dfactor);
+	BlendFunctionState(GLenum sf, GLenum df){
+		glBlendFunc(sf, df);
+	}
 	~BlendFunctionState();
 };

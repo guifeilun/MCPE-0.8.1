@@ -2,7 +2,7 @@
 #include <nbt/CompoundTag.hpp>
 #include <level/Level.hpp>
 #include <item/Item.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <math/Mth.hpp>
 #include <math.h>
 #include <tile/Tile.hpp>
@@ -709,7 +709,7 @@ void Mob::animateHurt() {
 	this->hurtTime = 10;
 	this->field_14C = 0;
 }
-void Mob::handleEntityEvent(int8_t event) {
+void Mob::handleEntityEvent(char event) {
 	Level* level; // r6
 	Level* v6; // r6
 

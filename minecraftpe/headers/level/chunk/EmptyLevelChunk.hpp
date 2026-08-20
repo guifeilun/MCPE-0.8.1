@@ -31,6 +31,6 @@ struct EmptyLevelChunk: LevelChunk
 	virtual void setBlocks(uint8_t*, int32_t);
 	virtual int32_t getBlocksAndData(uint8_t*, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 	virtual int32_t setBlocksAndData(uint8_t*, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
-	virtual Random getRandom(int32_t);
+	virtual Random getRandom(long);
 	virtual bool_t isEmpty();
 };

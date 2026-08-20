@@ -251,7 +251,7 @@ void LocalPlayer::move(float a2, float a3, float a4) {
 		}
 	}
 }
-char_t _D6E065B0 = 0;
+static char_t _D6E065B0 = 0;
 void LocalPlayer::tick() {
 	Player::tick();
 	if(this->isJumping && this->isRiding()) {

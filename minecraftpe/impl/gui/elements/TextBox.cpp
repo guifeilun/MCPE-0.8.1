@@ -3,7 +3,7 @@
 #include <gui/buttons/Touch_TButton.hpp>
 #include <rendering/Font.hpp>
 #include <util/Util.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <gui/Screen.hpp>
 
 char_t* TextBox::numberChars = "0123456789";

@@ -104,7 +104,7 @@ struct Mob : Entity{
 	virtual bool_t isOnFire();
 	virtual bool_t hurt(Entity*, int32_t);
 	virtual void animateHurt();
-	virtual void handleEntityEvent(int8_t);
+	virtual void handleEntityEvent(char);
 	virtual SynchedEntityData* getEntityData() const;
 	//there are two getEntityData functions for some reason
 	virtual int32_t getEntityTypeId() const = 0;

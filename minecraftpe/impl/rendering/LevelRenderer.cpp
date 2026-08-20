@@ -1,5 +1,5 @@
 #include <rendering/LevelRenderer.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <Minecraft.hpp>
 #include <algorithm>
 #include <entity/LocalPlayer.hpp>
@@ -25,7 +25,7 @@
 #include <sound/SoundEngine.hpp>
 #include <tile/Tile.hpp>
 #include <tile/entity/TileEntity.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <rendering/frustum/FrustumCuller.hpp>
 #include <util/DirtyChunkSorter.hpp>
 #include <perf/Stopwatch.hpp>
@@ -1448,7 +1448,7 @@ void LevelRenderer::takePicture(TripodCamera* a2, Entity* a3) {
 	this->minecraft->viewEntityMaybe = ve;
 	this->minecraft->options.hideGUI = hideGUI;
 	this->minecraft->options.thirdPerson = thirdPerson;
-	t_keepPic = -1;
+	_t_keepPic = -1;
 	sprintf(_D6E06888, "%s/games/com.mojang/img_%.4d.jpg", this->minecraft->dataPathMaybe.c_str(), getTimeMs());
 	this->minecraft->platform()->saveScreenshot(_D6E06888, this->minecraft->width, this->minecraft->height);
 }

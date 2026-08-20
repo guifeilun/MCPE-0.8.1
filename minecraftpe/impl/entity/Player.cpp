@@ -607,7 +607,7 @@ bool_t Player::hurt(Entity* a2, int32_t a3) {
 	}
 	return 0;
 }
-void Player::handleEntityEvent(int8_t evid) {
+void Player::handleEntityEvent(char evid) {
 	if(evid == 9) this->completeUsingItem();
 	else Mob::handleEntityEvent(evid);
 }

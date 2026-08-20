@@ -17,7 +17,7 @@
 #include <rendering/Textures.hpp>
 #include <rendering/entity/ItemRenderer.hpp>
 #include <tile/entity/ChestTileEntity.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 ChestScreen::ChestScreen(Player* a2, ChestTileEntity* a3)
 	: field_60(4, "")

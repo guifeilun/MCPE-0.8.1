@@ -3,7 +3,7 @@
 #include <entity/Player.hpp>
 #include <level/LevelSettings.hpp>
 #include <nbt/CompoundTag.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 LevelData::LevelData(struct CompoundTag* a2) {
 	this->sizeOnDisk = 0; //TODO doesnt seem to exist in mcpe

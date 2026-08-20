@@ -1,6 +1,6 @@
 #include <gui/buttons/Spinner.hpp>
 #include <Minecraft.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <rendering/Font.hpp>
 
 Spinner::Spinner()

@@ -3,7 +3,7 @@
 #include <rendering/tileentity/TileEntityRenderer.hpp>
 #include <tile/entity/TileEntity.hpp>
 #include <level/Level.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <Minecraft.hpp>
 #include <rendering/tileentity/ChestRenderer.hpp>
 #include <rendering/tileentity/SignRenderer.hpp>
@@ -11,9 +11,9 @@
 TileEntityRenderDispatcher::TileEntityRenderDispatcher() {
 	this->textures = 0;
 	this->level = 0; //TODO this thing is not here
-	this->rednerers.insert({TER_CHEST, new ChestRenderer()});
-	this->rednerers.insert({TER_SIGN, new SignRenderer()});
-	for(auto& r: this->rednerers) {
+	this->renderers.insert({TER_CHEST, new ChestRenderer()});
+	this->renderers.insert({TER_SIGN, new SignRenderer()});
+	for(auto& r: this->renderers) {
 		r.second->init(this);
 	}
 
@@ -46,8 +46,8 @@ TileEntityRenderer* TileEntityRenderDispatcher::getRenderer(TileEntity* a2) {
 	return this->getRenderer(a2->renderId);
 }
 TileEntityRenderer* TileEntityRenderDispatcher::getRenderer(TileEntityRendererId id) {
-	auto&& p = this->rednerers.find(id);
-	if(p != this->rednerers.end()) {
+	auto&& p = this->renderers.find(id);
+	if(p != this->renderers.end()) {
 		return p->second;
 	}
 	return 0;
@@ -84,7 +84,7 @@ void TileEntityRenderDispatcher::render(TileEntity* a2, float x, float y, float 
 }
 void TileEntityRenderDispatcher::setLevel(Level* a2) {
 	this->level = a2;
-	for(auto& r: this->rednerers) {
+	for(auto& r: this->renderers) {
 		if(r.second) {
 			r.second->onNewLevel(a2);
 		}

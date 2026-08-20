@@ -23,9 +23,9 @@
 #include <rendering/states/EnableState.hpp>
 #include <tile/Tile.hpp>
 #include <tile/material/Material.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 
-int32_t t_keepPic = -1;
+int32_t _t_keepPic = -1;
 GameRenderer::GameRenderer(struct Minecraft* a2)
 	: field_74(0, 0, 0, 0)
 	, field_84(0, 0, 0, 0) {
@@ -521,7 +521,7 @@ LABEL_20:
 	this->enableScissorTest = 0;
 	int32_t v27;
 	if(this->minecraft->isLevelGenerated()) {
-		if(t_keepPic >= 0 || this->minecraft->currentScreen != 0 && !this->minecraft->currentScreen->renderGameBehind()) {
+		if(_t_keepPic >= 0 || this->minecraft->currentScreen != 0 && !this->minecraft->currentScreen->renderGameBehind()) {
 			v27 = 0;
 LABEL_30:
 			v29 = v27;
@@ -984,7 +984,7 @@ void GameRenderer::tick(int32_t a2, int32_t a3) {
 	float v22;								// s13
 	ItemInHandRenderer* itemInHandRenderer; // r0
 
-	--t_keepPic;
+	--_t_keepPic;
 	minecraft = this->minecraft;
 	if(minecraft->player) {
 		if(!--_D67AD634) {

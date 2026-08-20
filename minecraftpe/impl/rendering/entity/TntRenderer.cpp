@@ -1,6 +1,6 @@
 #include <rendering/entity/TntRenderer.hpp>
 #include <entity/PrimedTnt.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <tile/Tile.hpp>
 
 TntRenderer::TntRenderer()

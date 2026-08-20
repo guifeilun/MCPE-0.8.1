@@ -13,7 +13,7 @@ Dimension::Dimension() {
 	this->hasNoSkyMaybe = 0;
 	this->id = 0;
 }
-int32_t Dimension::getMoonPhase(int32_t a2) {
+int32_t Dimension::getMoonPhase(long a2) {
 	return a2 / 19200 % 8;
 }
 Dimension* Dimension::getNew(int32_t id) {
@@ -65,7 +65,7 @@ bool_t Dimension::isValidSpawn(int32_t x, int32_t z) {
 bool_t Dimension::isNaturalDimension() {
 	return 0;
 }
-float Dimension::getTimeOfDay(int32_t, float) { //long, float
+float Dimension::getTimeOfDay(long, float) { //long, float
 	return 1.0;
 }
 Color4 Dimension::getSunriseColor(float a3, float a4) {

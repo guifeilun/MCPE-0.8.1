@@ -19,7 +19,7 @@ struct TileEntityRenderDispatcher
 	float camX, camY, camZ;
 	Minecraft* minecraft;
 	Font* font;
-	std::map<TileEntityRendererId, TileEntityRenderer*> rednerers;
+	std::map<TileEntityRendererId, TileEntityRenderer*> renderers;
 
 	TileEntityRenderDispatcher();
 	static void destroy();

@@ -1,5 +1,5 @@
 #include <gui/buttons/LargeImageButton.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <Minecraft.hpp>
 #include <rendering/Textures.hpp>
 #include <rendering/Tesselator.hpp>

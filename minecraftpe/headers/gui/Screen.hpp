@@ -5,7 +5,6 @@
 #include <network/mco/MCOEvent.hpp>
 #include <vector>
 
-extern char_t* panorama_images[];
 struct Button;
 struct Screen : public GuiComponent{
 	int32_t width, height;

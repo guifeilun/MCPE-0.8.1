@@ -5,7 +5,7 @@
 #include <gui/screens/ProgressScreen.hpp>
 #include <network/RakNetInstance.hpp>
 #include <rendering/Font.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 Touch::JoinGameScreen::JoinGameScreen()
 	: joinGameButton(2, "Join Game")

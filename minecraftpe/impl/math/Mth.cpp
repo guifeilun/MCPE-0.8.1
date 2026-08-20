@@ -1,7 +1,7 @@
 #include <math/Mth.hpp>
 #include <math.h>
 float Mth::_sin[65536]; //XXX initialized in NinecraftApp::init
-Random Mth::_random;
+static Random _random;
 
 float Mth::cos(float x){
 	return Mth::_sin[(int32_t)(x * 10430.0f + 16384.0) & 0xffff];
@@ -52,11 +52,11 @@ uint32_t Mth::fastRandom(void){
 }
 
 float Mth::random(void){
-	return Mth::_random.genrand_int32() * 2.32830644e-10;
+	return _random.genrand_int32() * 2.32830644e-10;
 }
 
 uint32_t Mth::random(int32_t bound){
-	return Mth::_random.genrand_int32() % bound;
+	return _random.genrand_int32() % bound;
 }
 float Mth::clampRotate(float f, float f1, float f2){
 	float f3, f4, f5;

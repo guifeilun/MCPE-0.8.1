@@ -4,16 +4,12 @@
 #include <android/log.h>
 #include <NinecraftApp.hpp>
 #include <input/Keyboard.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 jobject mainActivity_ref;
 extern "C" {
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-	struct timeval v1;
-	gettimeofday(&v1, 0);
-	startedAtSec = v1.tv_sec; //TODO mojang does it differently?
-
 	pthread_mutex_init(&_D6E04480, 0);
 	pthread_mutex_lock(&_D6E04480);
 	pthread_self();

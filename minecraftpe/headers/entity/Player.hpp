@@ -95,7 +95,7 @@ struct Player : Mob{
 	virtual bool_t isPlayer();
 	virtual bool_t isCreativeModeAllowed();
 	virtual bool_t hurt(Entity*, int32_t);
-	virtual void handleEntityEvent(int8_t);
+	virtual void handleEntityEvent(char);
 	virtual void awardKillScore(Entity*, int32_t);
 	virtual int32_t getEntityTypeId() const;
 	virtual void resetPos(bool_t);

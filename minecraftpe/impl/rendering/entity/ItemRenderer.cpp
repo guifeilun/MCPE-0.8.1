@@ -4,7 +4,7 @@
 #include <math/Mth.hpp>
 #include <rendering/Textures.hpp>
 #include <item/ItemInstance.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <tile/Tile.hpp>
 #include <item/Item.hpp>
 #include <entity/ItemEntity.hpp>

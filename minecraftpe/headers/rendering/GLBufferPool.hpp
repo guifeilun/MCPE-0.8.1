@@ -2,7 +2,7 @@
 #include <_types.h>
 #include <set>
 #include <deque>
-#include <unigl.h>
+#include <unigl.hpp>
 
 extern struct GLBufferPool glBufferPool;
 

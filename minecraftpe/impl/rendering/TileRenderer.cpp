@@ -1348,7 +1348,7 @@ void TileRenderer::renderWest(Tile* a2, float a3, float a4, float a5, const stru
 	Tesselator::instance.vertexUV(v40, v41, v44, maxX, v17);
 }
 
-int8_t _D67239E0[] = {5, 3, 4, 2};
+static int8_t _D67239E0[] = {5, 3, 4, 2};
 
 bool_t TileRenderer::tesselateBedInWorld(Tile* tile, int32_t x, int32_t y, int32_t z) {
 	uint32_t v9;					   // r0

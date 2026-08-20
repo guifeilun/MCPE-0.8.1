@@ -138,7 +138,7 @@ struct Entity{
 	virtual void makeStuckInWeb();
 	virtual float getHeadHeight();
 	virtual float getShadowHeightOffs();
-	virtual bool_t isSkyLit();
+	virtual bool isSkyLit(float);
 	virtual float getBrightness(float);
 	virtual bool_t interactPreventDefault();
 	virtual bool_t interactWithPlayer(Player*);
@@ -157,7 +157,7 @@ struct Entity{
 	virtual bool_t shouldRenderAtSqrDistance(float);
 	virtual bool_t hurt(Entity*, int32_t);
 	virtual void animateHurt();
-	virtual void handleEntityEvent(int8_t); //char
+	virtual void handleEntityEvent(char);
 	virtual float getPickRadius();
 	virtual Entity* spawnAtLocation(int32_t, int32_t);
 	virtual Entity* spawnAtLocation(int32_t, int32_t, float);

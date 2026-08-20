@@ -6,7 +6,7 @@
 #include <rendering/Font.hpp>
 #include <rendering/Tesselator.hpp>
 #include <rendering/Textures.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 ProgressScreen::ProgressScreen() {
 	this->tickCounter = 0;

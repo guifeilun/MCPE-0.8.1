@@ -21,7 +21,7 @@
 #include <util/GuiMessage.hpp>
 #include <util/IntRectangle.hpp>
 #include <util/OffsetPosTranslator.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <network/ServerCommandParser.hpp>
 
 float Gui::InvGuiScale = 0.333333;
@@ -944,7 +944,7 @@ void Gui::tick() {
 	}
 	if(!this->minecraftInst->isCreativeMode()) this->tickItemDrop();
 }
-char_t _D6E05A98;
+static char_t _D6E05A98;
 void Gui::tickItemDrop(void) {
 	int32_t v2;				  // r5
 	int32_t v3;				  // r0

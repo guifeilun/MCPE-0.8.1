@@ -1,6 +1,6 @@
 #include <perf/PerfTimer.hpp>
 #include <util/Util.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 
 std::map<std::string, float> PerfTimer::times;

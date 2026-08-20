@@ -3,9 +3,7 @@
 #include <util/Random.hpp>
 
 struct Mth{
-	//TODO fields
-	static float _sin[65536]; //XXX initialized in NinecraftApp::init
-	static Random _random; //XXX might be not inside Mth
+	static float _sin[65536];
 
 	static float cos(float);
 	static float sin(float);

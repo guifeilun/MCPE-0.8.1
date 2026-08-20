@@ -1,5 +1,5 @@
 #include <Timer.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 void Timer::advanceTime(){
 	int32_t nowMs = getTimeMs();

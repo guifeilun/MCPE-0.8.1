@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <rendering/textures/TextureData.hpp>
 
 struct ImageData;

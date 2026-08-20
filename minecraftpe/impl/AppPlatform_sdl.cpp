@@ -7,7 +7,7 @@
 #include <stb_image.h>
 #include <rendering/Textures.hpp>
 #include <rendering/Font.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <input/Mouse.hpp>
 #include <input/Keyboard.hpp>
 #include <entity/LocalPlayer.hpp>

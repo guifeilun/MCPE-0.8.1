@@ -4,7 +4,7 @@
 #include <rendering/Tesselator.hpp>
 #include <rendering/Textures.hpp>
 #include <rendering/states/DisableState.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 ScrolledSelectionList::ScrolledSelectionList(Minecraft* a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7)
 	: GuiComponent() {

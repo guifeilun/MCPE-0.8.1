@@ -16,7 +16,7 @@
 #endif
 #define CHUNK 16384
 
-void zerr(int ret) {
+static void zerr(int ret) {
 	fputs("zpipe: ", stderr);
 	switch(ret) {
 		case Z_ERRNO:

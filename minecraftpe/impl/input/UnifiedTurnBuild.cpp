@@ -2,7 +2,7 @@
 #include <Config.hpp>
 #include <Minecraft.hpp>
 #include <entity/Entity.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <input/TouchInputHolder.hpp>
 #include <input/Multitouch.hpp>
 #include <entity/Player.hpp>

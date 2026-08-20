@@ -78,7 +78,7 @@ int32_t EmptyLevelChunk::setBlocksAndData(uint8_t* a2, int32_t a3, int32_t a4, i
 	int32_t v9 = (a8 - a5) * (a6 - a3) * (a7 - a4);
 	return v9 + 3 * (v9 / 2);
 }
-Random EmptyLevelChunk::getRandom(int32_t a3){
+Random EmptyLevelChunk::getRandom(long a3){
 	return Random(
 		(this->level->getSeed()
 		+ 4987142 * this->chunkX * this->chunkX

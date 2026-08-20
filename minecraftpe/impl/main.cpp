@@ -1,6 +1,6 @@
 #ifndef ANDROID
 #include <_types.h>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <sys/time.h>
 #include <util/Random.hpp>
 #include <stdio.h>
@@ -10,7 +10,7 @@
 #include <AppPlatform_sdl.hpp>
 #include <utf8proc.h>
 #include <util/Util.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 
 AppPlatform_sdl appPlatform;
 #ifdef __WIN32__
@@ -18,9 +18,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 #else
 int main(){
 #endif
-	struct timeval start;
-	gettimeofday(&start, 0);
-	startedAtSec = start.tv_sec;
 	appPlatform.init();
 	return 0;
 }
@@ -32,16 +29,16 @@ int main(){
 #include <_pengine.hpp>
 #include <NinecraftApp.hpp>
 #include <android/JVMAttacher.hpp>
-#include <utils.h>
 #include <cpputils.hpp>
-#include <unigl.h>
+#include <cpputils.hpp>
+#include <unigl.hpp>
 #include <string.h>
 
 bool contextWasLost;
 ENGINE* pEngine;
 AppPlatform_android appPlatform;
 NinecraftApp* ninecraftApp;
-pthread_mutex_t _D6E04480;
+pthread_mutex_t _D6E04480; //TODO defined in the same file as engine?
 
 void android_main(struct android_app* state) {
 	ENGINE engine;

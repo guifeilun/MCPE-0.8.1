@@ -4,7 +4,7 @@
 #include <input/Mouse.hpp>
 #include <gui/Gui.hpp>
 #include <math.h>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <util/IntRectangle.hpp>
 #include <Minecraft.hpp>
 #include <rendering/Font.hpp>

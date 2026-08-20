@@ -3,7 +3,7 @@
 #include <rendering/Textures.hpp>
 #include <Options.hpp>
 #include <entity/particles/Particle.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <rendering/Tesselator.hpp>
 #include <level/Level.hpp>
 

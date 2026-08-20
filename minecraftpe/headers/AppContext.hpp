@@ -1,7 +1,7 @@
 #pragma once
 #include <_types.h>
 #ifdef USEGLES
-#include <unigl.h>
+#include <unigl.hpp>
 #endif
 struct AppContext{
 #ifdef USEGLES

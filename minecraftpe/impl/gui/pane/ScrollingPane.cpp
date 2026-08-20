@@ -1,6 +1,6 @@
 #include <gui/pane/ScrollingPane.hpp>
 #include <math.h>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <input/Mouse.hpp>
 #include <string.h>
 ScrollingPane::GridItem::GridItem() {

@@ -5,7 +5,7 @@ float Controller::stickValuesX[2];
 float Controller::stickValuesY[2];
 bool_t Controller::isTouchedValues[2];
 
-float _D67238D0[] = {0, 0.64, -0.64};
+static float _D67238D0[] = {0, 0.64, -0.64};
 
 void Controller::feed(int32_t a2, int32_t a3, float a4, float a5){
 	int32_t v7; // r2

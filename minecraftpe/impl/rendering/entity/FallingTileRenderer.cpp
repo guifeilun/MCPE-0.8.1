@@ -1,6 +1,6 @@
 #include <rendering/entity/FallingTileRenderer.hpp>
 #include <rendering/TileRenderer.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <tile/Tile.hpp>
 #include <entity/FallingTile.hpp>
 

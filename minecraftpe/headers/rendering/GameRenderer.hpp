@@ -4,7 +4,7 @@
 #include <util/Color4.hpp>
 #include <math/Vec3.hpp>
 
-extern int32_t t_keepPic;
+extern int32_t _t_keepPic;
 struct GameRenderer{
 	struct ItemInHandRenderer* itemInHandRenderer;
 	struct Minecraft* minecraft;

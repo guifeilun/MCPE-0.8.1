@@ -1,7 +1,7 @@
 #pragma once
 #include <level/storage/MemoryLevelStorage.hpp>
 #include <level/storage/chunk/ChunkStorage.hpp>
-
+#include <_AssetFile.hpp>
 #include <string>
 
 struct BinaryBlob;
@@ -23,6 +23,6 @@ struct BundledLevelStorage: MemoryLevelStorage, ChunkStorage
 	virtual bool_t load(Player*);
 	virtual struct LevelChunk* load(Level*, int32_t, int32_t);
 	virtual void save2(Level*, LevelChunk*);
-	virtual void getChunkData(int32_t, int32_t);
+	virtual AssetFile getChunkData(int32_t, int32_t);
 	virtual void freeChunkData(int32_t, int32_t, BinaryBlob*);
 };

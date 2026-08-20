@@ -5,10 +5,10 @@
 #include <math.h>
 #include <tile/material/Material.hpp>
 #include <math/Vec3.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <nbt/CompoundTag.hpp>
 #include <entity/ItemEntity.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <string.h>
 #include <util/EntityPos.hpp>
 #include <nbt/ListTagFloatAdder.hpp>
@@ -259,7 +259,7 @@ float Entity::setupLighting(bool_t a2, float a3) {
 		v7 = 0.35;
 	}
 	if(a2) {
-		v8 = this->isSkyLit();
+		v8 = this->isSkyLit(a3);
 
 		Vec3 result = v8 ? this->level->getSunlightDirection(a3) : Vec3(0.5, 1.0, 0.5).normalized(); // [sp+14h] [bp-9Ch] BYREF
 		x = result.x;
@@ -1241,7 +1241,7 @@ float Entity::getHeadHeight() {
 float Entity::getShadowHeightOffs() {
 	return this->entityHeight * 0.5;
 }
-bool_t Entity::isSkyLit() {
+bool Entity::isSkyLit(float) {
 	int32_t x; // r6
 	int32_t y; // r5
 	int32_t z; // r7
@@ -1376,7 +1376,7 @@ bool_t Entity::hurt(Entity* a2, int32_t a3) {
 }
 void Entity::animateHurt() {
 }
-void Entity::handleEntityEvent(int8_t) {
+void Entity::handleEntityEvent(char) {
 }
 float Entity::getPickRadius() {
 	return 0.1;

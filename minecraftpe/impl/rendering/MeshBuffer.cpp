@@ -1,7 +1,7 @@
 #include <rendering/MeshBuffer.hpp>
 #include <rendering/GLBufferPool.hpp>
 #include <string.h>
-#include <unigl.h>
+#include <unigl.hpp>
 
 MeshBuffer::MeshBuffer(void){
 	this->transformX = 0;

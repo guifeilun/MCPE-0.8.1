@@ -744,7 +744,7 @@ int32_t LevelChunk::setBlocksAndData(uint8_t* a2, int32_t a3, int32_t a4, int32_
 
 	return a9;
 }
-Random LevelChunk::getRandom(int32_t x) {
+Random LevelChunk::getRandom(long x) {
 	int32_t v5 = this->level->getSeed() + 4987142 * this->chunkX * this->chunkX + 5947611 * this->chunkX + 4392871 * this->chunkZ * this->chunkZ + 389711 * this->chunkZ;
 	return Random(v5 ^ x);
 }

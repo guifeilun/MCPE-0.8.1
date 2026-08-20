@@ -7,7 +7,7 @@
 #include <level/LevelSettings.hpp>
 #include <rendering/Font.hpp>
 #include <util/Util.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <set>
 #include <level/storage/LevelStorageSource.hpp>
 #include <algorithm>

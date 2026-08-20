@@ -13,7 +13,7 @@
 #include <rendering/states/DisableState.hpp>
 #include <rendering/states/EnableState.hpp>
 #include <tile/Tile.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <rendering/TextureTesselator.hpp>
 
 ItemInHandRenderer::ItemInHandRenderer(struct Minecraft* a2)

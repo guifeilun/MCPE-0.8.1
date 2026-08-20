@@ -12,7 +12,7 @@
 #include <rendering/Textures.hpp>
 #include <rendering/entity/ItemRenderer.hpp>
 #include <rendering/entity/MobRenderer.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <gui/NinePatchFactory.hpp>
 
 ArmorScreen::ArmorScreen()

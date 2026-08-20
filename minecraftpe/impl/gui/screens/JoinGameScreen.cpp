@@ -5,7 +5,7 @@
 #include <network/PingedCompatibleServer.hpp>
 #include <network/RakNetInstance.hpp>
 #include <rendering/Font.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 JoinGameScreen::JoinGameScreen()
 	: joinGameButton(2, "Join Game")

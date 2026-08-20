@@ -4,15 +4,23 @@
 #include <vector>
 #include <string>
 #include <memory>
+
+#define vcvts_n_f32_s32(a2, a3) (float)((float)(a2) / (1 << (uint32_t)(a3)))
 #ifdef __WIN32__
 #define FUNC_ERRNO _errno2
-#define FUNC_MKDIR mkdir2
+#define FUNC_MKDIR _mkdir2
 #else
 #define FUNC_ERRNO _errno
-#define FUNC_MKDIR mkdir
+#define FUNC_MKDIR _mkdir
 #endif
 struct RestRequestJob;
 struct Minecraft;
+
+double getTimeS();
+time_t getEpochTimeS();
+int32_t getTimeMs();
+int32_t getRemainingFileSize(FILE* file);
+void sleepMs(int32_t a1);
 
 template <typename T> void safeRemove(T*& p){
 	if(p){

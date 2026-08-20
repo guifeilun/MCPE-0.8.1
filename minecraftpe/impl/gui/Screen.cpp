@@ -5,14 +5,14 @@
 #include <rendering/Textures.hpp>
 #include <rendering/Tesselator.hpp>
 #include <rendering/states/DisableState.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <math/Mth.hpp>
 #include <util/Color4.hpp>
 #include <input/Mouse.hpp>
 #include <sound/SoundEngine.hpp>
 #include <input/Keyboard.hpp>
 
-char_t* panorama_images[] = {
+static char_t* panorama_images[] = {
 	"gui/background/panorama_0.png",
 	"gui/background/panorama_1.png",
 	"gui/background/panorama_2.png",

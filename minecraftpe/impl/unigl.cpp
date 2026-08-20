@@ -1,4 +1,4 @@
-#include <unigl.h>
+#include <unigl.hpp>
 #ifdef USEGLES
 #include <math.h>
 /*

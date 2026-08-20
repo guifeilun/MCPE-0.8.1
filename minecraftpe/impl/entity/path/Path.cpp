@@ -1,6 +1,6 @@
 #include <entity/path/Path.hpp>
 #include <entity/path/Node.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <entity/Entity.hpp>
 
 Path::Path(arrayWithLength<Node*> a2) {

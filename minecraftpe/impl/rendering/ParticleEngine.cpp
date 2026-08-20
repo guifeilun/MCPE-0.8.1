@@ -15,7 +15,7 @@
 #include <entity/particles/HeartParticle.hpp>
 #include <entity/particles/TerrainParticle.hpp>
 #include <math/Mth.hpp>
-#include <unigl.h>
+#include <unigl.hpp>
 #include <entity/Mob.hpp>
 #include <rendering/Textures.hpp>
 #include <rendering/Tesselator.hpp>

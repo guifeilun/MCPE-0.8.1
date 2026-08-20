@@ -1,6 +1,6 @@
 #include <input/ITurnInput.hpp>
 #include <math.h>
-#include <utils.h>
+#include <cpputils.hpp>
 
 float ITurnInput::getDeltaTime() {
 	if(this->curTime == -1.0) {

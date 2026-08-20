@@ -5,7 +5,7 @@
 #include <rendering/Tesselator.hpp>
 #include <gui/NinePatchFactory.hpp>
 #include <algorithm>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <ExternalServerFile.hpp>
 #include <ExternalServer.hpp>
 #include <network/RakNetInstance.hpp>

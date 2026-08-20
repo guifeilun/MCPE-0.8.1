@@ -55,7 +55,7 @@
 #include <util/Common.hpp>
 #include <util/SharedConstants.hpp>
 #include <util/Util.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 char_t* Minecraft::progressMessages[] = {"Locating server", "Building terrain", "Preparing", "Saving chunks", "Waiting for Minecraft Realms"};
 

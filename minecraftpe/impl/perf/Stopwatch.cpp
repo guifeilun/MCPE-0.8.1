@@ -1,5 +1,5 @@
 #include <perf/Stopwatch.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 
 Stopwatch::Stopwatch() {
 	this->count = 0;

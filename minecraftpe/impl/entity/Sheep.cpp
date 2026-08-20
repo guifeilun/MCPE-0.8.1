@@ -142,7 +142,7 @@ bool_t Sheep::interactWithPlayer(Player* a2) {
 	}
 	return Animal::interactWithPlayer(a2);
 }
-void Sheep::handleEntityEvent(int8_t event) {
+void Sheep::handleEntityEvent(char event) {
 	if(event == 10) {
 		this->field_C88 = 40;
 	} else {

@@ -7,7 +7,7 @@
 #include <gui/screens/ManageMCOServerScreen.hpp>
 #include <gui/screens/PlayScreen.hpp>
 #include <rendering/Tesselator.hpp>
-#include <utils.h>
+#include <cpputils.hpp>
 #include <util/Util.hpp>
 #include <level/storage/LevelStorageSource.hpp>
 #include <level/LevelSettings.hpp>
