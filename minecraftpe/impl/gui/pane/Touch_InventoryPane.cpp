@@ -133,7 +133,7 @@ void Touch::InventoryPane::renderBatch(std::vector<ScrollingPane::GridItem>& a2,
 	std::vector<const ItemInstance*> v40 = this->callback->getItems(this);
 	glEnable(0xC11u);
 	float v9 = this->field_24;
-	glScissor((unsigned int)(float)(v9 * (float)this->field_2C.minX), this->minecraft->field_20 - (unsigned int)(float)(v9 * (float)(this->field_2C.height + this->field_2C.minY)), (unsigned int)(float)(v9 * (float)this->field_2C.width), (unsigned int)(float)(v9 * (float)this->field_2C.height));
+	glScissor((unsigned int)(float)(v9 * (float)this->field_2C.minX), this->minecraft->height - (unsigned int)(float)(v9 * (float)(this->field_2C.height + this->field_2C.minY)), (unsigned int)(float)(v9 * (float)this->field_2C.width), (unsigned int)(float)(v9 * (float)this->field_2C.height));
 	Tesselator::instance.beginOverride();
 	Tesselator::instance.colorABGR(0xFFFFFFFF);
 	for(int v8 = 0; v8 < a2.size(); ++v8) {

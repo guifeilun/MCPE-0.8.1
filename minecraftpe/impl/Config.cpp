@@ -16,8 +16,8 @@ Config createConfig(Minecraft* mc) {
 
 	v4 = Gui::GuiScale;
 	res.guiScale = Gui::GuiScale;
-	v5 = mc->field_1C;
-	v6 = mc->field_20;
+	v5 = mc->width;
+	v6 = mc->height;
 	res.mc = mc;
 	v7 = 1.0 / v4;
 	res.field_0 = v5;

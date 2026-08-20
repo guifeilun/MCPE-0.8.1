@@ -137,7 +137,7 @@ void OptionsScreen::render(int32_t a2, int32_t a3, float a4) {
 		height = this->height;
 		v12 = this->selectedCategory;
 		if(v12) {
-			v12->render(minecraft, width * a2 / minecraft->field_1C, height * a3 / minecraft->field_20 - 1);
+			v12->render(minecraft, width * a2 / minecraft->width, height * a3 / minecraft->height - 1);
 		}
 	}
 }

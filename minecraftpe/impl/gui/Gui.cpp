@@ -47,7 +47,7 @@ Gui::Gui(Minecraft* mc) {
 	this->field_A80 = -1;
 	this->tipMessage = "";
 	this->field_A84 = -1;
-	this->field_A8C = 0;
+	this->tipTimeLeft = 0;
 	this->field_A94 = 0;
 	AppPlatform::_singleton->listeners.emplace(1.0f, this);
 }
@@ -205,23 +205,23 @@ RectangleArea Gui::getRectangleArea(int32_t a3) {
 	int32_t v13;			  // s12
 	int32_t v14;			  // s13
 
-	v6 = this->minecraftInst->field_1C / 2;
+	v6 = this->minecraftInst->width / 2;
 	slots = this->getNumSlots();
 	v8 = (float)v6 + 2.0;
 	minecraftInst = this->minecraftInst;
 	v10 = (float)((float)(10 * slots + 3) + 1.0) * Gui::GuiScale;
 	v11 = Gui::GuiScale * 25.0;
 	if(a3 < 0) {
-		v12 = (float)minecraftInst->field_20;
+		v12 = (float)minecraftInst->height;
 		return RectangleArea(1, 0, v12 - v11, (float)(v8 + v10) + 2, v12);
 	}
 	if(!a3) {
-		v14 = minecraftInst->field_20;
+		v14 = minecraftInst->height;
 		v12 = (float)v14;
 		return RectangleArea(1, v8 - v10, v12 - v11, (float)(v8 + v10) + 2, v12);
 	}
-	v12 = (float)minecraftInst->field_20;
-	v13 = minecraftInst->field_1C;
+	v12 = (float)minecraftInst->height;
+	v13 = minecraftInst->width;
 	return RectangleArea(1, v8 - v10, v12 - v11, v13, v12);
 }
 int32_t Gui::getSlotIdAt(int32_t a2, int32_t a3) {
@@ -232,8 +232,8 @@ int32_t Gui::getSlotIdAt(int32_t a2, int32_t a3) {
 	int32_t v9;	 // r4
 	int32_t v10; // r0
 
-	v5 = (int32_t)(float)((float)this->minecraftInst->field_1C * Gui::InvGuiScale);
-	v6 = (int32_t)(float)((float)this->minecraftInst->field_20 * Gui::InvGuiScale);
+	v5 = (int32_t)(float)((float)this->minecraftInst->width * Gui::InvGuiScale);
+	v6 = (int32_t)(float)((float)this->minecraftInst->height * Gui::InvGuiScale);
 	v8 = (int32_t)(float)((float)a3 * Gui::InvGuiScale);
 	if(v8 < v6 - 19) {
 		return -1;
@@ -259,8 +259,8 @@ int32_t Gui::getSlotPos(int32_t slot, int32_t& x, int32_t& y) {
 	int32_t result;			  // r0
 
 	minecraftInst = this->minecraftInst;
-	v8 = (int32_t)(float)((float)minecraftInst->field_20 * Gui::InvGuiScale);
-	v9 = (int32_t)(float)((float)minecraftInst->field_1C * Gui::InvGuiScale);
+	v8 = (int32_t)(float)((float)minecraftInst->height * Gui::InvGuiScale);
+	v9 = (int32_t)(float)((float)minecraftInst->width * Gui::InvGuiScale);
 	result = v9 / 2 - 10 * this->getNumSlots();
 	x = result + 20 * slot;
 	y = v8 - 22;
@@ -377,14 +377,14 @@ void Gui::render(float a2, bool_t a3, int32_t a4, int32_t a5) {
 	minecraftInst = this->minecraftInst;
 	if(minecraftInst->level) {
 		if(minecraftInst->player) {
-			DisableState v25(0xB71);
+			DisableState v25(GL_DEPTH_TEST);
 			v8 = this->minecraftInst;
 			font = v8->font;
 			v10 = v8->useTouchscreen();
 			v11 = this->minecraftInst;
-			v12 = v11->field_20;
+			v12 = v11->height;
 			v13 = Gui::InvGuiScale;
-			v14 = (float)v11->field_1C * Gui::InvGuiScale;
+			v14 = (float)v11->width * Gui::InvGuiScale;
 			this->zLayer = -90.0;
 			v15 = (int32_t)v14;
 			v16 = (int32_t)(float)((float)v12 * v13);
@@ -407,13 +407,13 @@ void Gui::render(float a2, bool_t a3, int32_t a4, int32_t a5) {
 			if(!this->minecraftInst->currentScreen) {
 				this->renderToolBar(a2, 0.65);
 			}
-			v18 = this->field_A8C;
+			v18 = this->tipTimeLeft;
 			if(v18 > 0.0) {
 				v19 = this->minecraftInst;
-				v20 = this->field_A90;
-				v21 = (float)v19->field_1C / Gui::GuiScale;
+				v20 = this->tipMessageLength;
+				v21 = (float)v19->width / Gui::GuiScale;
 				v22 = v18 / 20.0;
-				v23 = (float)((float)(v19->field_20 / 2) / Gui::GuiScale) + 20.0;
+				v23 = (float)((float)(v19->height / 2) / Gui::GuiScale) + 20.0;
 				if(v22 >= 1.0) v22 = 1.0;
 
 				v24 = Color4(1, 1, 1, v22 * 0.85).toARGB();
@@ -793,8 +793,8 @@ void Gui::renderToolBar(float a2, float a3) {
 	int32_t sp2;			  // [sp+28h] [bp-48h] BYREF
 
 	minecraftInst = this->minecraftInst;
-	v7 = (int32_t)(float)((float)minecraftInst->field_1C * Gui::InvGuiScale);
-	v8 = (int32_t)(float)((float)minecraftInst->field_20 * Gui::InvGuiScale);
+	v7 = (int32_t)(float)((float)minecraftInst->width * Gui::InvGuiScale);
+	v8 = (int32_t)(float)((float)minecraftInst->height * Gui::InvGuiScale);
 	v9 = v8 - 19;
 	glColor4f(1.0, 1.0, 1.0, a3);
 	this->minecraftInst->texturesPtr->loadAndBindTexture("gui/gui.png");
@@ -922,20 +922,20 @@ void Gui::setNowPlaying(const std::string& a2) {
 	this->field_A0C = 1;
 }
 void Gui::setScissorRect(const IntRectangle& a2) {
-	glScissor((uint32_t)(float)(Gui::GuiScale * (float)a2.minX), this->minecraftInst->field_20 - (uint32_t)(float)(Gui::GuiScale * (float)(a2.height + a2.minY)), (uint32_t)(float)(Gui::GuiScale * (float)a2.width), (uint32_t)(float)(Gui::GuiScale * (float)a2.height));
+	glScissor((uint32_t)(float)(Gui::GuiScale * (float)a2.minX), this->minecraftInst->height - (uint32_t)(float)(Gui::GuiScale * (float)(a2.height + a2.minY)), (uint32_t)(float)(Gui::GuiScale * (float)a2.width), (uint32_t)(float)(Gui::GuiScale * (float)a2.height));
 }
 void Gui::showTipMessage(const std::string& a2) {
 	this->tipMessage = a2;
-	this->field_A8C = 40;
-	this->field_A90 = this->minecraftInst->font->getPixelLength(a2);
+	this->tipTimeLeft = 40;
+	this->tipMessageLength = this->minecraftInst->font->getPixelLength(a2);
 }
 void Gui::texturesLoaded(struct Textures*) {
 }
 void Gui::tick() {
 	int32_t v2 = this->field_A08;
 	if(v2 > 0) this->field_A08 = v2 - 1;
-	float v3 = this->field_A8C;
-	if(v3 > 0) this->field_A8C = v3 - 1;
+	float v3 = this->tipTimeLeft;
+	if(v3 > 0) this->tipTimeLeft = v3 - 1;
 	++this->field_9FC;
 	float v4 = this->field_A00;
 	if(v4 < 2) this->field_A00 = v4 + 0.05;

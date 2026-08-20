@@ -35,7 +35,7 @@ Particle* ParticleEngine::_get(ParticleType a2) {
 }
 void ParticleEngine::_release(Particle* a2) {
 	std::deque<Particle*>* deq = &this->particlesToReuse[a2->type];
-	deq->emplace_back(a2); //TODO check is this actually emplace_back
+	deq->emplace_back(a2);
 }
 void ParticleEngine::clear() {
 	for(auto& p: this->string2ParticleVec) {

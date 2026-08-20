@@ -35,7 +35,7 @@ struct Gui : GuiComponent, AppPlatform::Listener{
 	float field_A80;
 	int32_t field_A84;
 	std::string tipMessage;
-	float field_A8C, field_A90;
+	float tipTimeLeft, tipMessageLength;
 	int8_t field_A94, field_A95, field_A96, field_A97;
 
 	static float floorAlignToScreenPixel(float);

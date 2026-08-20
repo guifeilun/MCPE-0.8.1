@@ -5,7 +5,7 @@
 
 TouchInputHolder::TouchInputHolder(Minecraft* mc)
 	: moveInput(mc, &mc->options)
-	, turnInput(2, mc->field_1C, mc->field_20, 200, 1, this, mc) {
+	, turnInput(2, mc->width, mc->height, 200, 1, this, mc) {
 	this->mouseX = 0;
 	this->mouseY = 0;
 	this->field_C = 0;

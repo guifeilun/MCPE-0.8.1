@@ -1,10 +1,4 @@
 #include <entity/particles/HeartParticle.hpp>
-HeartParticle::HeartParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->maxAliveTime = 16;
-	this->noclip = 0;
-	this->texture = {0, 0.3125, 0.0625, 0.375, 256, 256};
-}
 
 HeartParticle::~HeartParticle() {
 }

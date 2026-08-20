@@ -17,7 +17,12 @@ struct Color4{
 	float b;
 	float a;
 
-	Color4(float r, float g, float b, float a);
+	Color4(float r, float g, float b, float a){
+		this->r = r;
+		this->g = g;
+		this->b = b;
+		this->a = a;
+	}
 	int32_t toARGB(void);
 	static Color4 lerp(const Color4&, const Color4&, float);
 	static Color4 fromHSB(float, float, float);

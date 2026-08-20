@@ -19,31 +19,13 @@ std::string Entity::RIDING_TAG = "Riding";
 Random Entity::sharedRandom(getEpochTimeS());
 int32_t Entity::entityCounter = 0;
 
-Entity::Entity(Level* a2) : field_84(0, 0, 0, 0), boundingBox{0, 0, 0, 0, 0, 0}{
-	this->somethingRelatedToRenderer = 1.0;
-	this->field_2C = 0;
-	this->field_30 = 0;
-	this->field_34 = 0;
-	this->posX = 0.0;
-	this->posY = 0.0;
-	this->posZ = 0.0;
-	this->level = a2;
-	this->prevX = 0.0;
-	this->prevY = 0.0;
-	this->prevZ = 0.0;
-	this->motionX = 0.0;
-	this->motionY = 0.0;
-	this->motionZ = 0.0;
-	this->yaw = 0.0;
-	this->pitch = 0.0;
-	this->prevYaw = 0.0;
-	this->prevPitch = 0.0;
-	this->field_6C = 0.0;
-	this->field_70 = 0.0;
-	this->field_74 = 0.0;
-	this->field_78 = 0.0;
-	this->field_7C = 0.0;
-	this->field_80 = 0.0;
+Entity::Entity(Level* a2) :
+	somethingRelatedToRenderer(1.0), field_2C(0), field_30(0), field_34(0),
+	posX(0), posY(0), posZ(0), level(a2), prevX(0), prevY(0), prevZ(0),
+	motionX(0), motionY(0), motionZ(0), yaw(0), pitch(0), prevYaw(0), prevPitch(0),
+	field_6C(0), field_70(0), field_74(0), field_78(0), field_7C(0), field_80(0),
+	field_84(0, 0, 0, 0), boundingBox{0, 0, 0, 0, 0, 0}{
+	//coloUr, bb
 	this->entityWidth = 0.6;
 	this->field_D8 = 0;
 	this->field_DC = 0;

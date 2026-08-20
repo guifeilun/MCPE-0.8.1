@@ -103,8 +103,8 @@ void Screen::mouseEvent(void) {
 	MouseAction* ma = Mouse::getEvent();
 	if(ma->isButton()) {
 		bool_t b = Mouse::getEventButtonState();
-		int32_t v5 = this->width * ma->field_0 / this->minecraft->field_1C;
-		int32_t v6 = ma->field_2 * this->height / this->minecraft->field_20;
+		int32_t v5 = this->width * ma->field_0 / this->minecraft->width;
+		int32_t v6 = ma->field_2 * this->height / this->minecraft->height;
 		int32_t evb = Mouse::getEventButton();
 		if(b){
 			this->mouseClicked(v5, v6-1, evb);
@@ -261,8 +261,8 @@ void Screen::lostFocus(){
 	printf("Screen::lostFocus - not implemented\n");
 }
 void Screen::toGUICoordinate(int32_t& x, int32_t& y){
-	x = this->width*x / this->minecraft->field_1C;
-	y = this->height*y / this->minecraft->field_20 - 1;
+	x = this->width*x / this->minecraft->width;
+	y = this->height*y / this->minecraft->height - 1;
 }
 void Screen::feedMCOEvent(MCOEvent){}
 bool_t Screen::supppressedBySubWindow(){

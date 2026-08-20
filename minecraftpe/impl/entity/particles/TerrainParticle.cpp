@@ -2,10 +2,7 @@
 #include <level/Level.hpp>
 #include <rendering/Tesselator.hpp>
 #include <tile/Tile.hpp>
-TerrainParticle::TerrainParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->rColMul = this->gColMul = this->bColMul = 0.6;
-}
+
 TerrainParticle::~TerrainParticle() {
 }
 void TerrainParticle::init(float a2, float a3, float a4, float a5, float a6, float a7, int32_t a8) {

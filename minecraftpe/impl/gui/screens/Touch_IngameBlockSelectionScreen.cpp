@@ -128,7 +128,7 @@ void Touch::IngameBlockSelectionScreen::setupPositions() {
 	this->selectBlocksHeader.posY = 0;
 	this->selectBlocksHeader.posX = 0;
 	this->field_178 = 0;
-	v6 = minecraft->field_1C;
+	v6 = minecraft->width;
 	this->field_17C = 0;
 	this->field_180 = v6;
 	this->field_184 = (int32_t)(float)(Gui::GuiScale * 24.0);

@@ -2,15 +2,6 @@
 #include <math.h>
 std::string MobFlameParticle::FLAME_ATLAS = "fire_atlas.png";
 
-MobFlameParticle::MobFlameParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->noclip = 1;
-	this->bColMul = this->gColMul = this->rColMul = 0;
-	this->xOff = this->yOff = this->zOff = 0;
-	this->texture = {0, 0, 1, 0.03125, 16, 512};
-	this->coordMultiplier = -0.25;
-}
-
 MobFlameParticle::~MobFlameParticle() {
 }
 void MobFlameParticle::tick() {

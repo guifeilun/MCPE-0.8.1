@@ -1,10 +1,5 @@
 #include <entity/particles/FlameParticle.hpp>
 #include <math/Mth.hpp>
-FlameParticle::FlameParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->noclip = 1;
-	this->texture = {0, 0.1875, 0.0625, 0.25, 256, 256};
-}
 
 FlameParticle::~FlameParticle() {
 }

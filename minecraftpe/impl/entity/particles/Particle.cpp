@@ -6,14 +6,9 @@ Vec3 Particle::playerViewDir = Vec3::ZERO;
 float Particle::zOff, Particle::yOff, Particle::xOff;
 
 Particle::Particle(Level* level, ParticleType a3, const std::string& a4)
-	: Entity(level) {
-	this->type = a3;
-	this->textureAtlas = a4;
-	this->coordMultiplier = 0;
-	this->texture.minX = 0;
-	this->texture.minY = 0;
-	this->texture.maxX = 0;
-	this->texture.maxY = 0;
+	: Entity(level),
+	type(a3), textureAtlas(a4), coordMultiplier(0)
+{
 }
 void Particle::_init(float xPos, float yPos, float zPos, float motX, float motY, float motZ, int32_t a8) {
 	float v14;	   // r0

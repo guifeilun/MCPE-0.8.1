@@ -51,13 +51,13 @@ void TextEditScreen::render(int32_t a2, int32_t a3, float a4) {
 #else
 	glOrtho
 #endif
-		(0.0, (float)this->minecraft->field_1C, (float)this->minecraft->field_20, 0.0, -1.0, 1.0);
+		(0.0, (float)this->minecraft->width, (float)this->minecraft->height, 0.0, -1.0, 1.0);
 		glMatrixMode(0x1700u);
 		this->minecraft->texturesPtr->loadAndBindTexture("item/sign.png");
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		minecraft = this->minecraft;
-		v12 = (float)(minecraft->field_20 / 64) * 0.9;
-		glTranslatef((float)minecraft->field_1C * 0.5, 5.0, 0.0);
+		v12 = (float)(minecraft->height / 64) * 0.9;
+		glTranslatef((float)minecraft->width * 0.5, 5.0, 0.0);
 		glScalef(v12, v12, 1.0);
 		Tesselator::instance.begin(4);
 		Tesselator::instance.vertexUV(-32.0, 0.0, 0.0, 0.03126, 0.06249);

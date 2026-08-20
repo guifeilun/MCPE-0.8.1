@@ -6,7 +6,6 @@ struct HitResult;
 
 struct AABB{
 	float minX, minY, minZ, maxX, maxY, maxZ;
-
 	//TODO missing constructor
 	HitResult clip(const Vec3&, const Vec3&);
 	AABB expand(float, float, float);

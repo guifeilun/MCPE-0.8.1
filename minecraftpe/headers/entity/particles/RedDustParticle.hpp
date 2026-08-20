@@ -4,7 +4,10 @@
 struct RedDustParticle: Particle
 {
 	float field_164;
-	RedDustParticle(Level* level, ParticleType pt, const std::string& a2);
+	RedDustParticle(Level* level, ParticleType pt, const std::string& a2)
+		: Particle(level, pt, a2) {
+		this->noclip = 0;
+	}
 
 	virtual ~RedDustParticle();
 	virtual void tick();

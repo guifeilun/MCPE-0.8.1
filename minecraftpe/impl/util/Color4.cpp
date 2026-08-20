@@ -9,13 +9,6 @@ Color4 Color4::GREEN(0.0, 1.0, 0.0, 1.0);
 Color4 Color4::BLUE(0.0, 0.0, 1.0, 1.0);
 Color4 Color4::NIL(0.0, 0.0, 0.0, 0.0);
 
-Color4::Color4(float r, float g, float b, float a){
-	this->r = r;
-	this->g = g;
-	this->b = b;
-	this->a = a;
-}
-
 int32_t Color4::toARGB(void){
 	union{
 		struct{

@@ -1,12 +1,6 @@
 #include <entity/particles/LavaParticle.hpp>
 #include <math/Mth.hpp>
 #include <level/Level.hpp>
-LavaParticle::LavaParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->bColMul = this->gColMul = this->rColMul = 1;
-	this->noclip = 0;
-	this->texture = {0, 0.1875, 0.125, 0.25, 256, 256};
-}
 
 LavaParticle::~LavaParticle() {
 }

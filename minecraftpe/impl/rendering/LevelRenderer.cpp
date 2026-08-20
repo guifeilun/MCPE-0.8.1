@@ -581,7 +581,7 @@ void LevelRenderer::renderClouds(float a2) {
 	glPushMatrix();
 	glLoadIdentity();
 	fov = this->minecraft->gameRenderer->getFov(a2, 1);
-	gluPerspective(fov, (float)this->minecraft->field_1C / (float)this->minecraft->field_20, 2.0, v17);
+	gluPerspective(fov, (float)this->minecraft->width / (float)this->minecraft->height, 2.0, v17);
 	this->cloudsMesh.render();
 	glPopMatrix();
 	glMatrixMode(0x1700u);
@@ -1450,7 +1450,7 @@ void LevelRenderer::takePicture(TripodCamera* a2, Entity* a3) {
 	this->minecraft->options.thirdPerson = thirdPerson;
 	t_keepPic = -1;
 	sprintf(_D6E06888, "%s/games/com.mojang/img_%.4d.jpg", this->minecraft->dataPathMaybe.c_str(), getTimeMs());
-	this->minecraft->platform()->saveScreenshot(_D6E06888, this->minecraft->field_1C, this->minecraft->field_20);
+	this->minecraft->platform()->saveScreenshot(_D6E06888, this->minecraft->width, this->minecraft->height);
 }
 Particle* LevelRenderer::addParticle(ParticleType a2, float x, float y, float z, float a6, float a7, float a8, int32_t a9) {
 	Minecraft* minecraft; // r4

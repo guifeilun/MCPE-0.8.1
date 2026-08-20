@@ -4,7 +4,10 @@
 struct SmokeParticle: Particle
 {
 	float field_164;
-	SmokeParticle(Level* level, ParticleType pt, const std::string& a2);
+	SmokeParticle(Level* level, ParticleType pt, const std::string& a2)
+		: Particle(level, pt, a2) {
+		this->noclip = 0;
+	}
 
 	virtual ~SmokeParticle();
 	virtual void tick();

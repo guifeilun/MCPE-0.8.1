@@ -542,7 +542,7 @@ LABEL_30:
 		v27 = 0;
 	} else {
 		v27 = 1;
-		glViewport(0, 0, this->minecraft->field_1C, this->minecraft->field_20);
+		glViewport(0, 0, this->minecraft->width, this->minecraft->height);
 		glMatrixMode(0x1701);
 		glLoadIdentity();
 		glMatrixMode(0x1700);
@@ -609,7 +609,7 @@ void GameRenderer::renderItemInHand(float a2, int32_t a3) {
 					if(fov != this->fov) {
 						glMatrixMode(0x1701u);
 						glLoadIdentity();
-						gluPerspective(fov, (float)this->minecraft->field_1C / (float)this->minecraft->field_20, 0.05, this->field_8);
+						gluPerspective(fov, (float)this->minecraft->width / (float)this->minecraft->height, 0.05, this->field_8);
 						glMatrixMode(0x1700u);
 					}
 					glClear(0x100u);
@@ -674,7 +674,7 @@ void GameRenderer::renderLevel(float a2) {
 	v10 = viewEntityMaybe->prevPosX + (float)((float)(viewEntityMaybe->posX - viewEntityMaybe->prevPosX) * a2);
 	v11 = viewEntityMaybe->prevPosY + (float)((float)(viewEntityMaybe->posY - viewEntityMaybe->prevPosY) * a2);
 	v12 = viewEntityMaybe->prevPosZ + (float)((float)(viewEntityMaybe->posZ - viewEntityMaybe->prevPosZ) * a2);
-	glViewport(0, 0, v6->field_1C, v6->field_20);
+	glViewport(0, 0, v6->width, v6->height);
 	this->setupClearColor(a2);
 	glClear(0x4500u);
 	this->setupCamera(a2, 0);
@@ -763,7 +763,7 @@ void GameRenderer::renderSky(LevelRenderer* a2, float a3, float a4) {
 	minecraft = this->minecraft;
 	v9 = this->field_8;
 	this->fov = fov;
-	gluPerspective(fov, (float)minecraft->field_1C / (float)minecraft->field_20, 2.0, v9 * 5120.0);
+	gluPerspective(fov, (float)minecraft->width / (float)minecraft->height, 2.0, v9 * 5120.0);
 	glMatrixMode(0x1700u);
 	glScalef((float)(this->field_8 / 100.0) * 128.0, (float)(this->field_8 / 100.0) * 128.0, (float)(this->field_8 / 100.0) * 128.0);
 	glPushMatrix();
@@ -809,7 +809,7 @@ void GameRenderer::setupCamera(float a2, int32_t a3) {
 	fov = this->getFov(a2, 1);
 	v8 = this->minecraft;
 	this->fov = fov;
-	gluPerspective(fov, (float)v8->field_1C / (float)v8->field_20, 0.05, this->field_8 * 1.2);
+	gluPerspective(fov, (float)v8->width / (float)v8->height, 0.05, this->field_8 * 1.2);
 	glMatrixMode(0x1700u);
 	glLoadIdentity();
 	this->bobHurt(a2);
@@ -945,8 +945,8 @@ void GameRenderer::setupGuiScreen(bool_t a2) {
 	int32_t v4;
 
 	minecraft = this->minecraft;
-	v3 = (float)minecraft->field_20 * Gui::InvGuiScale;
-	v4 = (int32_t)(float)((float)minecraft->field_1C * Gui::InvGuiScale);
+	v3 = (float)minecraft->height * Gui::InvGuiScale;
+	v4 = (int32_t)(float)((float)minecraft->width * Gui::InvGuiScale);
 	glMatrixMode(0x1701u);
 	glLoadIdentity();
 
@@ -1065,8 +1065,8 @@ bool_t GameRenderer::updateFreeformPickDirection(float a2, struct Vec3& a3, stru
 		}
 		int viewport[4] = {0, 0, 0, 0};
 
-		viewport[3] = this->minecraft->field_20;
-		viewport[2] = this->minecraft->field_1C;
+		viewport[3] = this->minecraft->height;
+		viewport[2] = this->minecraft->width;
 		float mouseX = this->minecraft->inputHolder->mouseX;
 		float mouseY = viewport[3] - this->minecraft->inputHolder->mouseY;
 		float objXYZ[3];

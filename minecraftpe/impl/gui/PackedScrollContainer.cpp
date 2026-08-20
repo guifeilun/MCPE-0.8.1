@@ -60,7 +60,7 @@ void PackedScrollContainer::render(Minecraft* a2, int32_t a3, int32_t a4) {
 	v9 *= -2;
 	v17 = posY + height - v12;
 	v18 = v14 + 1 + v9;
-	glScissor((uint32_t)(float)(Gui::GuiScale * (float)v11), a2->field_20 - (uint32_t)(float)(Gui::GuiScale * (float)v17), (uint32_t)(float)(Gui::GuiScale * (float)(width + 1 + v9)), (uint32_t)(float)(Gui::GuiScale * (float)(height - 2 * v12)));
+	glScissor((uint32_t)(float)(Gui::GuiScale * (float)v11), a2->height - (uint32_t)(float)(Gui::GuiScale * (float)v17), (uint32_t)(float)(Gui::GuiScale * (float)(width + 1 + v9)), (uint32_t)(float)(Gui::GuiScale * (float)(height - 2 * v12)));
 
 	for(auto v26: this->children) {
 		v21 = v26->posX;

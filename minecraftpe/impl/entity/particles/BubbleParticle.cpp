@@ -2,14 +2,7 @@
 #include <math/Mth.hpp>
 #include <level/Level.hpp>
 #include <tile/material/Material.hpp>
-BubbleParticle::BubbleParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->rColMul = 1;
-	this->gColMul = 1;
-	this->bColMul = 1;
-	this->setSize(0.02, 0.02);
-	this->texture = {0, 0.125, 0.0625, 0.1875, 256, 256};
-}
+BubbleParticle::BubbleParticle(Level* level, ParticleType pt, const std::string& a2);
 BubbleParticle::~BubbleParticle() {
 }
 void BubbleParticle::tick() {

@@ -1,9 +1,5 @@
 #include <entity/particles/SmokeParticle.hpp>
 #include <math/Mth.hpp>
-SmokeParticle::SmokeParticle(Level* level, ParticleType pt, const std::string& a2)
-	: Particle(level, pt, a2) {
-	this->noclip = 0;
-}
 
 SmokeParticle::~SmokeParticle() {
 }

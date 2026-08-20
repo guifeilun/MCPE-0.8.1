@@ -2,10 +2,6 @@
 #include <item/Item.hpp>
 #include <tile/Tile.hpp>
 #include <rendering/Tesselator.hpp>
-BreakingItemParticle::BreakingItemParticle(Level* level, ParticleType pt, const std::string& a2, Item* it)
-	: Particle(level, pt, a2) {
-	this->item = it;
-}
 
 BreakingItemParticle::~BreakingItemParticle() {
 }

@@ -19,7 +19,7 @@ struct Particle: Entity
 	float gravity;
 	float rColMul, gColMul, bColMul;
 	ParticleType type;
-	std::string textureAtlas;
+	const std::string& textureAtlas;
 
 	Particle(Level*, ParticleType, const std::string&);
 	void _init(float, float, float, float, float, float, int32_t);

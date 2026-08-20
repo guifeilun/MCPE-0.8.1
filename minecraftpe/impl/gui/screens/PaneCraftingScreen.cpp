@@ -162,7 +162,7 @@ void PaneCraftingScreen::onItemSelected(int32_t a2, CItem* a3) {
 		if(this->scrollingPane) {
 			delete this->scrollingPane;
 		}
-		this->scrollingPane = new ItemPane(this, this->minecraft->texturesPtr, this->field_184, a6, this->height, this->minecraft->field_20, 1);
+		this->scrollingPane = new ItemPane(this, this->minecraft->texturesPtr, this->field_184, a6, this->height, this->minecraft->height, 1);
 		((ItemPane*)this->scrollingPane)->font = this->minecraft->font;
 		this->field_78 = a2;
 	}

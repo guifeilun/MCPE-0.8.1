@@ -63,9 +63,9 @@ Minecraft::Minecraft()
 	: gui(this) {
 	this->wantsToQuit = 0;
 	this->context.platform = 0;
-	this->field_1C = 1;
+	this->width = 1;
 	this->field_24 = 4711;
-	this->field_20 = 1;
+	this->height = 1;
 	this->field_18 = 0;
 	this->field_28 = 0;
 	this->field_2C = 0;
@@ -436,7 +436,7 @@ void Minecraft::init(void) {
 	this->user = new User(this->options.username, "");
 	this->setIsCreativeMode(0);
 	this->_reloadInput();
-	this->setSize(this->field_1C, this->field_20);
+	this->setSize(this->width, this->height);
 	this->mojangConnector = std::shared_ptr<MojangConnector>(new MojangConnector(this));
 	std::shared_ptr<LoginInformation> v20 = this->mojangConnector->getLoginInformation();
 	if(v20->accessToken != "") {
@@ -840,7 +840,7 @@ void Minecraft::setScreen(Screen* screen) {
 	this->field_C7C = std::shared_ptr<Screen>(screen);
 	if(this->currentScreen) {
 		this->releaseMouse();
-		this->currentScreen->init(this, this->field_1C * Gui::InvGuiScale, this->field_20 * Gui::InvGuiScale);
+		this->currentScreen->init(this, this->width * Gui::InvGuiScale, this->height * Gui::InvGuiScale);
 		if(this->currentScreen->isInGameScreen()) {
 			if(this->level) this->level->saveGame();
 		}
@@ -851,10 +851,10 @@ void Minecraft::setScreen(Screen* screen) {
 void Minecraft::setSize(int32_t a2, int32_t a3) {
 	this->transformResolution(&a2, &a3);
 
-	this->field_1C = a2;
-	this->field_20 = a3;
-	if(a2 == 0) this->field_1C = 240;
-	if(a3 == 0) this->field_20 = 140;
+	this->width = a2;
+	this->height = a3;
+	if(a2 == 0) this->width = 240;
+	if(a3 == 0) this->height = 140;
 
 	float ppm;
 	if(this->platform()) {
@@ -864,12 +864,12 @@ void Minecraft::setSize(int32_t a2, int32_t a3) {
 	}
 
 	float gscale;
-	if(this->field_1C >= 1000) {
+	if(this->width >= 1000) {
 		if(ppm <= 15) gscale = 4;
 		else gscale = 6;
-	} else if(this->field_1C >= 800) {
+	} else if(this->width >= 800) {
 		gscale = 3;
-	} else if(this->field_1C >= 400) {
+	} else if(this->width >= 400) {
 		gscale = 2;
 	} else {
 		Gui::GuiScale = 1;
@@ -889,7 +889,7 @@ CALCULATE_INVERSE:
 	Config v18 = createConfig(this);
 	this->gui.onConfigChanged(v18);
 	if(this->currentScreen) {
-		this->currentScreen->setSize(this->field_1C * Gui::InvGuiScale, this->field_20 * Gui::InvGuiScale);
+		this->currentScreen->setSize(this->width * Gui::InvGuiScale, this->height * Gui::InvGuiScale);
 		this->currentScreen->setupPositions();
 	}
 	if(this->inputHolder) {
