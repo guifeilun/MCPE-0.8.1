@@ -4,6 +4,8 @@
 struct SmoothFloat
 {
 	float field_0, field_4, field_8;
-	SmoothFloat(); //always inlined
+	SmoothFloat() {
+		this->field_0 = this->field_4 = this->field_8 = 0;
+	}
 	float getNewDeltaValue(float, float);
 };

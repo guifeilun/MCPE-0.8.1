@@ -15,7 +15,7 @@ void I18n::loadLanguage(struct AppPlatform* a1, const std::string& a2) {
 	}
 }
 
-const char_t* _d6e03d98[] = {"wood", "iron", "stone", "diamond", "gold", "brick", "emerald", "lapis", "cloth"};
+static const char_t* _d6e03d98[] = {"wood", "iron", "stone", "diamond", "gold", "brick", "emerald", "lapis", "cloth"};
 
 std::string I18n::getDescriptionString(const struct ItemInstance& a2) {
 	std::string v15 = a2.getDescriptionId();

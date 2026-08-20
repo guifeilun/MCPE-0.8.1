@@ -7,11 +7,13 @@ struct Random{
 	bool_t haveNextNextGaussian;
 	float nextNextGaussian;
 
-	Random(int32_t seed);
+	Random(long seed){
+		this->setSeed(seed);
+	}
 	Random(void);
-	void init_genrand(uint32_t);
+	void init_genrand(unsigned long);
 	float nextFloat(void);
 	float nextGaussian(void);
 	uint32_t genrand_int32(void);
-	void setSeed(int64_t);
+	void setSeed(long);
 };

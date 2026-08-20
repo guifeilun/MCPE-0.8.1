@@ -15,7 +15,7 @@ struct Vec3{
 	static Vec3 UNIT_Z;
 	static Vec3 NEG_UNIT_Z;
 
-	Vec3();
+	Vec3(){}
 	Vec3(float, float, float);
 	float distanceTo(const Vec3&);
 	float distanceToSqr(const Vec3&) const;

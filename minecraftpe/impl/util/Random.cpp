@@ -9,11 +9,9 @@ Random::Random(void){
 	this->setSeed(time); //XXX inlined in 0.8
 }
 
-Random::Random(int32_t seed){
-	this->setSeed(seed); //XXX inlined in 0.8 ?
-}
 
-void Random::init_genrand(uint32_t seed){
+
+void Random::init_genrand(unsigned long seed){
 	int32_t index;
 
 	this->permutations[0] = seed;
@@ -83,7 +81,7 @@ uint32_t Random::genrand_int32(void){
 	y ^= (y >> 18);
 	return y;
 }
-void Random::setSeed(int64_t seed){
+void Random::setSeed(long seed){
 	this->seed = seed;
 	this->index = 625;
 	this->haveNextNextGaussian = 0;

@@ -5,7 +5,7 @@
 #include <sounddata.hpp>
 
 SoundEngine::SoundEngine(float a2)
-	: SS_SUPER_CLASS() {
+	: soundSystem() {
 	this->field_40 = 0;
 	this->field_A14 = 0.0;
 	this->field_A18 = 0.0;
@@ -157,7 +157,7 @@ void SoundEngine::play(const std::string& a2, float a3, float a4, float a5, floa
 		if(this->options->soundVolume != 0.0 && v12 > 0.0) {
 			SoundDesc v13;
 			if(this->sounds.get(a2, v13)) {
-				SS_SUPER_CLASS::playAt(v13, a3, a4, a5, v12, a7);
+				this->soundSystem.playAt(v13, a3, a4, a5, v12, a7);
 			}
 		}
 	}
@@ -180,7 +180,7 @@ void SoundEngine::playUI(const std::string& a2, float a3, float a4) {
 LABEL_6:
 			SoundDesc v8; // [sp+10h] [bp-38h] BYREF
 			if(this->sounds.get(a2, v8)) {
-				SS_SUPER_CLASS::playAt(v8, 0.0, 0.0, 0.0, v6, a4);
+				this->soundSystem.playAt(v8, 0.0, 0.0, 0.0, v6, a4);
 			}
 		}
 	}
@@ -193,7 +193,7 @@ void SoundEngine::update(struct Mob* a2, float a3) {
 			this->field_A1C = a2->prevZ + (float)((float)(a2->posZ - a2->prevZ) * a3);
 			float v3 = a2->prevYaw + (float)((float)(a2->yaw - a2->prevYaw) * a3);
 			this->field_A20 = v3;
-			this->setListenerAngle(v3);
+			this->soundSystem.setListenerAngle(v3);
 		}
 	}
 }

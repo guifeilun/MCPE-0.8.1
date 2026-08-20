@@ -1,7 +1,5 @@
 #include <math/SmoothFloat.hpp>
-SmoothFloat::SmoothFloat() {
-	this->field_0 = this->field_4 = this->field_8 = 0;
-}
+
 float SmoothFloat::getNewDeltaValue(float a, float b) {
 	float v3; // s13
 	float v4; // s14

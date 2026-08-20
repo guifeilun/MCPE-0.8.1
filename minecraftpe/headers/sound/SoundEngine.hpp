@@ -14,7 +14,10 @@
 #include <util/Random.hpp>
 #include <sound/SoundRepository.hpp>
 
-struct SoundEngine : public SS_SUPER_CLASS{
+struct SoundEngine
+{
+	SS_SUPER_CLASS soundSystem;
+
 	struct Options* options;
 	int32_t field_40;
 	Random randomInstance;
@@ -29,7 +32,7 @@ struct SoundEngine : public SS_SUPER_CLASS{
 	SoundEngine(float);
 	float _getVolumeMult(float, float, float);
 	void destroy(void);
-	virtual void enable(bool_t);
+	void enable(bool_t);
 	void init(struct Minecraft*, struct Options*);
 	void play(const std::string&, float, float, float, float, float);
 	void playUI(const std::string&, float, float);

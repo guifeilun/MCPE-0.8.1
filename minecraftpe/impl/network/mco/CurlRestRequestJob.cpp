@@ -62,8 +62,8 @@ void CurlRestRequestJob::run() {
 	}
 	struct curl_slist* list = NULL;
 
-	printf("Sending: %s %d\n", this->restService->getSeriveURL()->c_str(), this->requestType);
-	curl_easy_setopt(curl, CURLOPT_URL, this->restService->getSeriveURL()->c_str());
+	printf("Sending: %s %d\n", this->restService->getServiceURL()->c_str(), this->requestType);
+	curl_easy_setopt(curl, CURLOPT_URL, this->restService->getServiceURL()->c_str());
 	switch(this->requestType) {
 		case RRT_GET:
 			curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
@@ -103,7 +103,7 @@ void CurlRestRequestJob::run() {
 	//curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 	CURLcode result = curl_easy_perform(curl);
-	printf("Req: %s -> %d: (%s)\n", this->restService->getSeriveURL()->c_str(), result, response.c_str());
+	printf("Req: %s -> %d: (%s)\n", this->restService->getServiceURL()->c_str(), result, response.c_str());
 	if(result == CURLE_OK) {
 		int code;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);

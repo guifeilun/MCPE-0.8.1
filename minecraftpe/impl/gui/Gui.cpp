@@ -331,7 +331,7 @@ bool_t Gui::isInside(int32_t x, int32_t y) {
 	return this->getSlotIdAt(x, y) != -1;
 }
 
-OffsetPosTranslator _spawnPos;
+static OffsetPosTranslator _spawnPos;
 static char_t _D6E05AAC[264];
 
 void Gui::onLevelGenerated() {

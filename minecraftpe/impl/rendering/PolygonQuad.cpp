@@ -1,12 +1,6 @@
 #include <rendering/PolygonQuad.hpp>
 #include <rendering/Tesselator.hpp>
-PolygonQuad::PolygonQuad(){
-	for(int i = 0; i < 4; ++i){
-		this->verticies[i].vec.x = 0;
-		this->verticies[i].vec.y = 0;
-		this->verticies[i].vec.z = 0;
-	}
-}
+
 PolygonQuad::PolygonQuad(VertexPT* v1, VertexPT* v2, VertexPT* v3, VertexPT* v4){
 	for(int i = 0; i < 4; ++i){
 		this->verticies[i].vec.x = 0;

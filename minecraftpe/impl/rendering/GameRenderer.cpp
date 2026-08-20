@@ -778,7 +778,7 @@ void GameRenderer::renderSky(LevelRenderer* a2, float a3, float a4) {
 	glPopMatrix();
 	glMatrixMode(0x1700u);
 }
-bool_t _d6e06788_matricesSaved = 0;
+static bool_t _d6e06788_matricesSaved = 0;
 void GameRenderer::saveMatrices(void) {
 	_d6e06788_matricesSaved = 1;
 	glGetFloatv(0xBA7u, this->projectionMat);

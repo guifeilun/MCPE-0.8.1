@@ -12,5 +12,5 @@ struct GuiMessage
 	GuiMessage(const std::string&, const std::string&, int32_t);
 	GuiMessage& operator=(const GuiMessage&);
 	GuiMessage& operator=(GuiMessage&&);
-	virtual ~GuiMessage();
+	~GuiMessage();
 };

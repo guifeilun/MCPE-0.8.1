@@ -11,9 +11,3 @@ VertexPT::VertexPT(const VertexPT &vv, float u, float v){
 	this->vec.y = vv.vec.y;
 	this->vec.z = vv.vec.z;
 }
-
-//XXX doesnt exist in mcpe?
-VertexPT::VertexPT(){
-	this->u = 0;
-	this->v = 0;
-}

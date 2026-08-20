@@ -12,10 +12,8 @@ Vec3 Vec3::NEG_UNIT_Y(0, -1, 0);
 
 Vec3 Vec3::UNIT_Z(0, 0, 1);
 Vec3 Vec3::NEG_UNIT_Z(0, 0, -1);
-Vec3::Vec3() {
-}
 Vec3::Vec3(float x, float y, float z){
-	//XXX contains n == 0 ? 0 : n everywhere
+	//TODO inlineable?
 	if(x == 0) x = 0;
 	this->x = x;
 	if(y == 0) y = 0;

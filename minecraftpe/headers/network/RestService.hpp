@@ -10,7 +10,7 @@ struct RestService
 	RestService(const std::string&);
 	std::map<std::string, std::string> getCookieData();
 	std::string getCookieDataAsString();
-	std::string* getSeriveURL();
+	std::string* getServiceURL();
 	void setCookieData(const std::string&, const std::string&);
 
 

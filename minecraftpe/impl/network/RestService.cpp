@@ -15,7 +15,7 @@ std::string RestService::getCookieDataAsString() {
 	}
 	return str.str();
 }
-std::string* RestService::getSeriveURL() {
+std::string* RestService::getServiceURL() {
 	return &this->serviceURL;
 }
 void RestService::setCookieData(const std::string& a2, const std::string& a3) {
