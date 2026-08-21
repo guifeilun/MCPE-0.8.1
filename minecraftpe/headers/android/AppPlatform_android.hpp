@@ -72,7 +72,7 @@ struct AppPlatform_android : AppPlatform{
 
 	AppPlatform_android();
 	void init(JavaVM*);
-	void convertOpenGlToAndroidPixels(int, int, uint*);
+	void convertOpenGlToAndroidPixels(int, int, unsigned int*);
 
 	virtual ~AppPlatform_android();
 	virtual void saveScreenshot(std::string const&, int, int);

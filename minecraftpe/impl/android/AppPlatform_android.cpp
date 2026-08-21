@@ -146,14 +146,29 @@ void AppPlatform_android::init(JavaVM* jvm){
 	}
 	v98.forceDetach();
 }
-void AppPlatform_android::convertOpenGlToAndroidPixels(int, int, uint*){
+void AppPlatform_android::convertOpenGlToAndroidPixels(int a2, int a3, unsigned int* pixels){
 	printf("AppPlatform_android::convertOpenGlToAndroidPixels - not implemented\n"); //TODO
 }
 
 AppPlatform_android::~AppPlatform_android(){}
-void AppPlatform_android::saveScreenshot(std::string const&, int, int){
-	printf("AppPlatform_android::saveScreenshot - not implemented\n"); //TODO
-	//used by the very illegal item called camera
+void AppPlatform_android::saveScreenshot(std::string const& a2, int a3, int a4){
+	if(this->initialized){
+		if(this->_jniSaveScreenshot){
+			JVMAttacher v16(this->jvm);
+			unsigned int* pixels = new unsigned int[a4*a3];
+			if(pixels){
+				glReadPixels(0, 0, a3, a4, 0x1908u, 0x1401u, pixels);
+				this->convertOpenGlToAndroidPixels(a3, a4, pixels);
+				jintArray arr = v16.env->NewIntArray(a4*a3);
+				if(arr){
+					v16.env->NewGlobalRef(arr);
+					v16.env->SetIntArrayRegion(arr, 0, a4*a3, (const jint*) pixels);
+					v16.env->CallStaticVoidMethod(this->mainActivityReference, this->_jniSaveScreenshot, v16.env->NewStringUTF(a2.c_str()));
+					delete[] pixels;
+				}
+			}
+		}
+	}
 }
 std::string AppPlatform_android::getImagePath(const std::string& a3, bool_t a4){
 	return "images/" + a3; //TODO check

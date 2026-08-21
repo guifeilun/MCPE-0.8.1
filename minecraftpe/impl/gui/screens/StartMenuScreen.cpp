@@ -10,7 +10,7 @@
 
 StartMenuScreen::StartMenuScreen()
 	: Screen()
-	, startGameButton(2, 0, 0, 60, 24, "Start Game")
+	, startGameButton(2, 0, 0, 160, 24, "Start Game")
 	, joinGameButton(3, 0, 0, 160, 24, "Join Game")
 	, optionsButton(4, 0, 0, 78, 22, "Options")
 	, createButton(999, 0, 0, 78, 22, "Create")

@@ -10,8 +10,8 @@ namespace Touch {
 		int32_t selectedItem;
 		int8_t field_70, field_71, field_72, field_73;
 		int32_t field_74;
-		std::vector<struct LevelSummary> field_78;
-		std::vector<std::vector<std::string>> field_84;
+		std::vector<struct LevelSummary> items;
+		std::vector<std::vector<std::string>> levelsInfoMaybe;
 		std::vector<std::string> field_90;
 		int8_t field_9C, field_9D, field_9E, field_9F;
 		LevelSummary field_A0;

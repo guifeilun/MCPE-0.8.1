@@ -223,7 +223,7 @@ void PlayScreen::updateMCOServerList() {
 void PlayScreen::updateMCOStatus() {
 	if(this->minecraft->mojangConnector->getConnectionStatus() && !this->field_A4 && this->minecraft->mojangConnector->getConnectionStatus()) {
 		safeStopAndRemove<std::shared_ptr<RestRequestJob>>(this->field_9C);
-		this->field_9C = RestRequestJob::CreateJob(RRT_GET, this->minecraft->mojangConnector->getMCOSercice(), this->minecraft);
+		this->field_9C = RestRequestJob::CreateJob(RRT_GET, this->minecraft->mojangConnector->getMCOService(), this->minecraft);
 		this->field_9C->setMethod("/info/status");
 		RestRequestJob::launchRequest(
 			this->field_9C,

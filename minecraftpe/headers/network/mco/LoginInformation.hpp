@@ -7,6 +7,12 @@ struct LoginInformation{
 	std::string clientId;
 	std::string profileId;
 	std::string profileName;
-	LoginInformation();
+	LoginInformation() {
+		this->accessToken = "";
+		this->clientId = "";
+		this->profileId = "";
+		this->profileName = "";
+	}
+
 	~LoginInformation(void);
 };

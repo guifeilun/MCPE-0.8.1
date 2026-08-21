@@ -5,9 +5,12 @@
 struct LevelSummary
 {
 	std::string field_0, field_4;
-	int32_t field_8, field_C, field_10, field_14;
+	int32_t field_8, gamemode, field_10, field_14;
 
-	LevelSummary();
+	LevelSummary() {
+		this->field_0 = "";
+		this->field_4 = "";
+	}
 	LevelSummary(const LevelSummary&);
 	LevelSummary(LevelSummary&&);
 	LevelSummary& operator=(const LevelSummary&);

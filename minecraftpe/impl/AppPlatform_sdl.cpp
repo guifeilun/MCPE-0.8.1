@@ -46,10 +46,6 @@ void AppPlatform_sdl::loadPNG(ImageData& data, const std::string& path, bool_t t
 	data.pixels = pixels;
 }
 
-/*void AppPlatform_sdl::updateStatsUserData(const std::string&, const std::string&){
-	printf("AppPlatform_sdl::updateStatsUserData: not implemented\n");
-}*/
-
 SDL_Surface* AppPlatform_sdl::setSDLVideoMode() {
 	return SDL_SetVideoMode(
 		this->screenWidth, this->screenHeight,

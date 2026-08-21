@@ -40,7 +40,7 @@ struct MojangConnector{
 	std::shared_ptr<LoginInformation> getLoginInformation();
 	std::shared_ptr<MCOParser> getMCOParser();
 	std::shared_ptr<std::unordered_map<long long, MCOServerListItem>> getMCOServerList();
-	std::shared_ptr<RestService> getMCOSercice();
+	std::shared_ptr<RestService> getMCOService();
 	std::string* getServerKey();
 	std::shared_ptr<ThreadCollection> getThreadCollection();
 	bool_t isMCOCreateServersEnabled();

@@ -210,7 +210,7 @@ void LocalServerListItemElement::render(Minecraft* a2, int32_t a3, int32_t a4) {
 	}
 	if(levelSummary) {
 		a2->font->drawShadow(levelSummary->field_4, (float)this->posX + 5.0, (float)this->posY + 5.0, v12);
-		std::string ss = this->levelSummary->field_C == 1 ? "Creative" : "Survival";
+		std::string ss = this->levelSummary->gamemode == 1 ? "Creative" : "Survival";
 		v14 = a2->font->width(ss);
 		a2->font->drawShadow(ss, (float)this->posX + 5.0, (float)this->posY + 16.0, 0xFFBBBBBB);
 		a2->font->drawShadow(this->getLastPlayedString(), (float)((float)((float)this->posX + 5.0) + (float)v14) + 10.0, (float)this->posY + 16.0, 0xFFBBBBBB);

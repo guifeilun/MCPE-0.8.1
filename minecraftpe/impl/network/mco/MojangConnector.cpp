@@ -9,6 +9,10 @@
 #include <oaes_lib.h>
 #include <string.h>
 #include <util/Base64.hpp>
+#include <network/mco/RestRequestJob.hpp>
+#include <util/Util.hpp>
+#include <sstream>
+
 #ifndef AUTH_SERVER
 #define AUTH_SERVER "https://authserver.mojang.com"
 #endif
@@ -65,7 +69,7 @@ std::shared_ptr<MCOParser> MojangConnector::getMCOParser() {
 std::shared_ptr<std::unordered_map<long long, MCOServerListItem>> MojangConnector::getMCOServerList() {
 	return this->serverList;
 }
-std::shared_ptr<RestService> MojangConnector::getMCOSercice() {
+std::shared_ptr<RestService> MojangConnector::getMCOService() {
 	return this->mcoService;
 }
 std::string* MojangConnector::getServerKey() {
@@ -81,7 +85,18 @@ bool_t MojangConnector::isServiceEnabled() {
 	return this->serviceEnabled;
 }
 void MojangConnector::setLoginInformation(const LoginInformation& a2) {
-	printf("MojangConnector::setLoginInformation(accessToken=%s clientId=%s profileId=%s profileName=%s) - not implemented\n", a2.accessToken.c_str(), a2.clientId.c_str(), a2.profileId.c_str(), a2.profileName.c_str()); //TODO
+	this->loginInformation = std::shared_ptr<LoginInformation>(new LoginInformation(a2));
+	std::stringstream v14;
+	v14 << "token:" << this->loginInformation->accessToken << ":" << this->loginInformation->profileId;
+	this->mcoService->setCookieData("sid", v14.str());
+	this->mcoService->setCookieData("user", this->loginInformation->profileName);
+	if(a2.accessToken != "") { //TODO check: compareStringsMaybe(&a2->accessToken, &_byte_nullstr_D67153C4)
+		this->minecraft->options.set(&Options::Option::NAME, this->loginInformation->profileName);
+		this->setStatus(STATUS_2);
+		this->minecraft->platform()->setLoginInformation(a2);
+	} else {
+		this->setStatus(STATUS_0);
+	}
 }
 void MojangConnector::setMCOCreateServersEnabled(bool_t a2) {
 	this->serverCreationEnabled = a2;
@@ -95,11 +110,38 @@ void MojangConnector::setMCOServiceEnabled(bool_t a2) {
 void MojangConnector::setPayload(const std::string& a2) {
 	this->joinMCOPayload = a2;
 }
-void MojangConnector::setServerKey(const std::string&) {
-	printf("MojangConnector::setServerKey - not implemented\n"); //TODO
+void MojangConnector::setServerKey(const std::string& a2) {
+	this->getMCOService()->setCookieData("key", a2);
+	this->serverKey = a2;
 }
-void MojangConnector::setStatus(MojangConnectionStatus a2){
-	printf("MojangConnector::setStatus(%d) - not implemented\n", a2); //TODO
+void MojangConnector::setStatus(MojangConnectionStatus status) {
+	if(status != this->status) {
+		if(status == STATUS_2) {
+			std::shared_ptr<RestRequestJob> v8 = RestRequestJob::CreateJob(RRT_GET, this->getMCOService(), this->minecraft);
+			v8->field_30 = Util::simpleFormat("/info/status", {});
+			RestRequestJob::launchRequest(
+				v8,
+				this->getThreadCollection(),
+				[this](int32_t a2, const std::string& a3, const RestCallTagData& a4, std::shared_ptr<RestRequestJob> a5) {
+					bool v8 = 0;
+					bool createServersEnabled = 0;
+					bool serviceEnabled = 0;
+					this->getMCOParser()->parseStatus(a3, v8, createServersEnabled, serviceEnabled);
+					this->setMCOServiceEnabled(serviceEnabled);
+					this->setMCOCreateServersEnabled(createServersEnabled);
+				},
+				[this](bool, bool, int32_t, const std::string&, const RestCallTagData&, std::shared_ptr<RestRequestJob>) {
+					this->serviceEnabled = 0;
+					this->serverCreationEnabled = 0;
+				}
+			);
+		} else {
+			this->serviceEnabled = 0;
+		}
+		this->status = status;
+		this->minecraft->onMojangConnectorStatus(status);
+
+	}
 }
 void MojangConnector::updateUIThread() {
 	this->threadCollection->processUIThread();

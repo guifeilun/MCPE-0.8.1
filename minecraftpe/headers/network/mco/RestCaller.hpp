@@ -7,6 +7,7 @@
 struct CMutex;
 struct MCOConnector;
 struct RestCallerObject;
+struct RestCallTagData;
 
 struct RestCaller
 {
@@ -30,9 +31,9 @@ struct RestCaller
 	void setSidAndUser(const std::string&, const std::string&);
 
 	virtual ~RestCaller();
-	void requestStop() = 0;
-	void urlEscape(const std::string&);
-	void update();
-	void makeRequest(RestCallerObject*) = 0;
+	virtual void requestStop() = 0;
+	virtual void urlEscape(const std::string&);
+	virtual void update();
+	virtual void makeRequest(RestCallerObject*) = 0;
 
 };

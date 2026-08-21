@@ -30,7 +30,7 @@ void ExternalFileLevelStorageSource::addLevelSummaryIfExists(std::vector<LevelSu
 		ls.field_4 = ld.levelName;
 		ls.field_8 = ld.getLastPlayed();
 		ls.field_14 = ld.getSizeOnDisk();
-		ls.field_C = ld.getGameType();
+		ls.gamemode = ld.getGameType();
 		a2.emplace_back(ls);
 	}
 }

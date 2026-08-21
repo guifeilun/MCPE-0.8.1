@@ -7,6 +7,9 @@
 #include <set>
 #include <level/storage/LevelStorageSource.hpp>
 #include <algorithm>
+#include <level/LevelSettings.hpp>
+#include <gui/screens/ProgressScreen.hpp>
+#include <cpputils.hpp>
 
 Touch::SelectWorldScreen::SelectWorldScreen()
 	: field_54(1, "")
@@ -51,7 +54,7 @@ void Touch::SelectWorldScreen::loadLevelSource(){
 	for(int i = 0; i < this->field_19C.size(); ++i) {
 		LevelSummary* v9 = &this->field_19C[i];
 		if(v9->field_0 != LevelStorageSource::TempLevelId) {
-			this->selectionList->field_78.emplace_back(LevelSummary(*v9));
+			this->selectionList->items.emplace_back(LevelSummary(*v9));
 		}
 	}
 }
@@ -114,7 +117,6 @@ bool_t Touch::SelectWorldScreen::handleBackEvent(bool_t a2) {
 }
 
 void Touch::SelectWorldScreen::tick(){
-	//TODO
 	if(this->field_1AC == 1) {
 		int32_t v3 = this->minecraft->platform()->getUserInputStatus();
 		if(v3 >= 0) {
@@ -127,6 +129,29 @@ void Touch::SelectWorldScreen::tick(){
 					++v4;
 				} while(v4 != 15);
 				if(v21.length() == 0) v21 = "no_name";
+				v21 = this->getUniqueLevelName(v21);
+				int epoch = getEpochTimeS();
+				if(userInput.size() > 1) {
+					std::string v24 = Util::stringTrim(userInput[1]);
+					if(v24.size() != 0) {
+						int v23;
+						if(sscanf(v24.c_str(), "%d", &v23) <= 0) {
+							epoch = Util::hashCode(v24);
+						} else {
+							epoch = v23;
+						}
+					}
+				}
+				int gm;
+				if(userInput.size() <= 2 || userInput[2].compare("survival") != 0) {
+					gm = 1;
+				} else {
+					gm = 0;
+				}
+				this->minecraft->selectLevel(v21, dest, LevelSettings{epoch, gm});
+				this->minecraft->hostMultiplayer(19132);
+				this->minecraft->setScreen(new ProgressScreen());
+				this->field_1A9 = 1;
 			}
 			this->field_1AC = 0;
 			this->selectionList->field_9C = 0;
@@ -135,8 +160,24 @@ void Touch::SelectWorldScreen::tick(){
 		this->selectionList->field_9C = 0;
 	}else{
 		this->selectionList->tick();
+		if(this->selectionList->field_9C) {
+			if(this->selectionList->field_B8 != this->selectionList->items.size()) {
+				this->minecraft->selectLevel(this->selectionList->field_A0.field_0, this->selectionList->field_A0.field_4, LevelSettings{-1, -1});
+				this->minecraft->hostMultiplayer(19132);
+				this->minecraft->setScreen(new ProgressScreen());
+				this->field_1A9 = 1;
+				return;
+			}
+			this->selectionList->field_9C = 0;
+			this->minecraft->platform()->createUserInput(1);
+			this->field_1AC = 1;
+		}
+		LevelSummary v26;
+		if(this->isIndexValid(this->selectionList->selectedItem)) {
+			v26 = this->selectionList->items[this->selectionList->selectedItem];
+		}
+		this->field_54.active = this->isIndexValid(this->selectionList->selectedItem);
 	}
-	printf("Touch::SelectWorldScreen::tick - not implemented\n");
 }
 bool_t Touch::SelectWorldScreen::isInGameScreen() {
 	return 1;
@@ -148,7 +189,7 @@ void Touch::SelectWorldScreen::buttonClicked(Button* a2) {
 	}
 	if(a2->buttonID == this->field_54.buttonID) {
 		if(this->isIndexValid(this->selectionList->selectedItem)) {
-			this->minecraft->setScreen(new Touch::DeleteWorldScreen(this->selectionList->field_78[this->selectionList->selectedItem]));
+			this->minecraft->setScreen(new Touch::DeleteWorldScreen(this->selectionList->items[this->selectionList->selectedItem]));
 		}
 	}
 	if(a2->buttonID == this->backButton.buttonID) {

@@ -34,6 +34,7 @@
 #include <util/DistanceEntitySorter.hpp>
 #include <util/_TickPtr.hpp>
 #include <cpputils.hpp>
+#include <sstream>
 
 Level::Level(struct LevelStorage* a2, const std::string& a3, const struct LevelSettings& a4, bool_t a5, int32_t a6, struct Dimension* a7) : random(1){
 	this->isClientMaybe = a5;
@@ -1023,28 +1024,13 @@ struct Player* Level::getPlayer(const std::string& a2) {
 	}
 	return 0;
 }
-/*returns <player_count>:PlayerName,PlayerName2, ...
-	segfaults(at least in x86 build) after it was called 9 times, 8th time will have corrupted string
-	code used for testing:
-
-	void* level_getPlayerNames = internal_dlsym(handle, "_ZN5Level14getPlayerNamesEv");
-	int player = *(int*)(((int)ninecraft_app) + 3168);
-	if(player){
-		int level = *(int*)(player+64);
-		if(level){
-			std_string str;
-			(((void (*)(std_string*, int)) level_getPlayerNames))(&str, level);
-			printf("%s\n", std_string_cstr(&str));
-		}
-	}
-	According to 0.7.2 it uses std::basic_stringstream and std::ostream
-	According to 0.8.1 x86 it uses std::ios std::stringbuf std::streambuf and stuff like this
-	Doesnt seem to be used by anything in 0.8
-	*/
 std::string Level::getPlayerNames() {
-	printf("Level::getPlayerNames - not implemented\n");
-	//TODO getPlayerNames
-	return "";
+	std::stringstream v10;
+	v10 << this->playersMaybe.size() << ':';
+	for(Player* p: this->playersMaybe) {
+		v10 << p->username << ',';
+	}
+	return v10.str();
 }
 
 Biome::MobSpawnerData Level::getRandomMobSpawnAt(const MobCategory& a3, int32_t a4, int32_t a5, int32_t a6) {

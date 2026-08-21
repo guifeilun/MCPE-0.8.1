@@ -22,7 +22,7 @@ double getTimeS(){
 	return v1.tv_sec - startedAtSec + (double)v1.tv_usec / 1000000.0;
 }
 
-time_t getEpochTimeS() {
+time_t getEpochTimeS() { //TODO returns int?
 	return time(0);
 }
 
