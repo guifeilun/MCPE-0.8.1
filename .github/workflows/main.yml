@@ -42,10 +42,28 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        
     - name: install pkgs
       run: |
         sudo apt update
         sudo apt install -y gcc-mingw-w64 libz-mingw-w64-dev g++-mingw-w64 wget unzip libsdl1.2debian libsdl1.2-dev libopenal-dev libgl1-mesa-dev zlib1g-dev libcurl4-openssl-dev unzip
+    
+    - name: Download and setup OpenAL (prebuilt)
+      run: |
+        echo "- Downloading prebuilt OpenAL Soft -"
+        OPENAL_VERSION="1.23.1"
+        wget "https://openal-soft.org/openal-binaries/openal-soft-${OPENAL_VERSION}-bin.zip"
+        
+        echo "- Unzipping OpenAL -"
+        unzip "openal-soft-${OPENAL_VERSION}-bin.zip"
+        
+        echo "OPENAL_INCLUDE_DIR=${PWD}/openal-soft-${OPENAL_VERSION}-bin/include/" >> $GITHUB_ENV
+        echo "OPENAL_LIBRARY=${PWD}/openal-soft-${OPENAL_VERSION}-bin/libs/Win64/OpenAL32.lib" >> $GITHUB_ENV
+        
+        cp "openal-soft-${OPENAL_VERSION}-bin/bin/Win64/OpenAL32.dll" .
+        
+        echo "- OpenAL setup complete -"
+        ls -la openal-soft-${OPENAL_VERSION}-bin/
     
     - name: do cmake stuff 
       run: |
@@ -72,11 +90,29 @@ jobs:
         
         echo "start building"
         export CURDIR=$DIRSTACK
-        cmake .. -DDYNAMICSOUNDS=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS} -static" -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCURL_INCLUDE_DIR="$CURDIR/curl-8.20.0/build-win64/include/" -DCURL_LIBRARY="$CURDIR/curl-8.20.0/build-win64/bin/libcurl-4.dll" -DSDL_LIBRARY="$CURDIR/SDL.dll" -DSDL_INCLUDE_DIR="$CURDIR/SDL-1.2.15/include/" -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32/
+
+        cmake .. -DDYNAMICSOUNDS=ON \
+          -DCMAKE_SYSTEM_NAME=Windows \
+          -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+          -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
+          -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS} -static" \
+          -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+          -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+          -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+          -DCURL_INCLUDE_DIR="$CURDIR/curl-8.20.0/build-win64/include/" \
+          -DCURL_LIBRARY="$CURDIR/curl-8.20.0/build-win64/bin/libcurl-4.dll" \
+          -DSDL_LIBRARY="$CURDIR/SDL.dll" \
+          -DSDL_INCLUDE_DIR="$CURDIR/SDL-1.2.15/include/" \
+          -DOPENAL_INCLUDE_DIR="${{ env.OPENAL_INCLUDE_DIR }}" \
+          -DOPENAL_LIBRARY="${{ env.OPENAL_LIBRARY }}" \
+          -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32/
+        
         make -j8
 
         cp minecraftpe/build/minecraftpe08decomp.exe .
         cp curl-8.20.0/build-win64/bin/libcurl-4.dll .
+        
+        cp ../OpenAL32.dll .
         
     - name: upload stuff
       uses: actions/upload-artifact@v4
@@ -86,4 +122,4 @@ jobs:
           build/minecraftpe08decomp.exe
           build/SDL.dll
           build/libcurl-4.dll
-          
+          build/OpenAL32.dll
