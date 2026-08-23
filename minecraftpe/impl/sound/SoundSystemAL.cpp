@@ -1,10 +1,13 @@
-#if defined(__linux__) and not defined(ANDROID)
 #include <sound/SoundSystemAL.hpp>
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <sound/SoundDesc.hpp>
 #include <math.h>
 #include <sounddata.hpp>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 SoundSystemAL::SoundSystemAL(void) {
 	this->init();
@@ -78,7 +81,7 @@ void SoundSystemAL::removeStoppedSounds(void) {
 	}
 }
 void SoundSystemAL::setListenerPos(float a, float b, float c) {
-
+	alListener3f(AL_POSITION, a, b, c);
 }
 void SoundSystemAL::setListenerAngle(float a) {
 	float r = a * (M_PI / 180.0);
@@ -117,7 +120,7 @@ void SoundSystemAL::playAt(const struct SoundDesc& a2, float a3, float a4, float
 			if(state != AL_PLAYING) {
 				alSourcef(this->sources[i], AL_PITCH, 1); //pitch seems to be always 1
 				alSourcef(this->sources[i], AL_GAIN, a6);
-				alSource3f(this->sources[i], AL_POSITION, 0, 0, 0);
+				alSource3f(this->sources[i], AL_POSITION, a3, a4, a5);
 				alSourcei(this->sources[i], AL_LOOPING, AL_FALSE);
 				alSource3f(this->sources[i], AL_VELOCITY, 0.0f, 0.0f, 0.0f);
 				alSourcef(this->sources[i], AL_REFERENCE_DISTANCE, 5.0f);
@@ -130,4 +133,3 @@ void SoundSystemAL::playAt(const struct SoundDesc& a2, float a3, float a4, float
 		}
 	}
 }
-#endif
