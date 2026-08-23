@@ -1,8 +1,11 @@
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: 测试
 
 on:
   push:
-  workflow_dispatch:
+  workflow_dispatch:    
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -19,19 +22,17 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y libsdl1.2-dev libopenal-dev libgl1-mesa-dev zlib1g-dev libcurl4-openssl-dev
-        
     - name: do cmake stuff 
       run: |
         mkdir build/
         cd build/
         cmake .. -DDYNAMICSOUNDS=ON
         make -j8
-        
     - name: upload stuff
       uses: actions/upload-artifact@v4
       with:
         name: build-linux
-        path: |
+        path: 
           build/minecraftpe/build/minecraftpe08decomp
 
   build-windows:
@@ -41,25 +42,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-        
     - name: install pkgs
       run: |
         sudo apt update
         sudo apt install -y gcc-mingw-w64 libz-mingw-w64-dev g++-mingw-w64 wget unzip libsdl1.2debian libsdl1.2-dev libopenal-dev libgl1-mesa-dev zlib1g-dev libcurl4-openssl-dev unzip
     
-    - name: Download and install OpenAL to MinGW sysroot
-      run: |
-        echo "- Downloading prebuilt OpenAL Soft -"
-        OPENAL_VERSION="1.23.1"
-        wget "https://openal-soft.org/openal-binaries/openal-soft-${OPENAL_VERSION}-bin.zip"
-        unzip "openal-soft-${OPENAL_VERSION}-bin.zip"
-        
-        echo "- Installing OpenAL to MinGW sysroot -"
-        sudo cp -r "openal-soft-${OPENAL_VERSION}-bin/include/AL" /usr/x86_64-w64-mingw32/include/
-        sudo cp "openal-soft-${OPENAL_VERSION}-bin/libs/Win64/OpenAL32.lib" /usr/x86_64-w64-mingw32/lib/
-        
-        echo "✅ OpenAL installed to sysroot"
-
     - name: do cmake stuff 
       run: |
         mkdir build/
@@ -85,21 +72,7 @@ jobs:
         
         echo "start building"
         export CURDIR=$DIRSTACK
-        
-        cmake .. -DDYNAMICSOUNDS=ON \
-          -DCMAKE_SYSTEM_NAME=Windows \
-          -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
-          -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
-          -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS} -static" \
-          -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
-          -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
-          -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
-          -DCURL_INCLUDE_DIR="$CURDIR/curl-8.20.0/build-win64/include/" \
-          -DCURL_LIBRARY="$CURDIR/curl-8.20.0/build-win64/bin/libcurl-4.dll" \
-          -DSDL_LIBRARY="$CURDIR/SDL.dll" \
-          -DSDL_INCLUDE_DIR="$CURDIR/SDL-1.2.15/include/" \
-          -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32/
-        
+        cmake .. -DDYNAMICSOUNDS=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS} -static" -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCURL_INCLUDE_DIR="$CURDIR/curl-8.20.0/build-win64/include/" -DCURL_LIBRARY="$CURDIR/curl-8.20.0/build-win64/bin/libcurl-4.dll" -DSDL_LIBRARY="$CURDIR/SDL.dll" -DSDL_INCLUDE_DIR="$CURDIR/SDL-1.2.15/include/" -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32/
         make -j8
 
         cp minecraftpe/build/minecraftpe08decomp.exe .
