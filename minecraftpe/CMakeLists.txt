@@ -7,7 +7,13 @@ if(ANDROID)
 
 else()
 	find_package(OpenGL REQUIRED)
-	find_package(OpenAL REQUIRED)
+
+	if(WIN32)
+
+	else()
+		find_package(OpenAL REQUIRED)
+	endif()
+
 	find_package(SDL REQUIRED)
 	find_package(CURL REQUIRED)
 endif()
@@ -54,6 +60,10 @@ else()
 
 	target_include_directories(minecraftpe08decomp PUBLIC "headers/")
 	target_link_libraries(minecraftpe08decomp)
-	target_link_libraries(minecraftpe08decomp ${OPENAL_LIBRARY})
+	if(WIN32)
+		target_link_libraries(minecraftpe08decomp pthread dsound dxguid)
+	else()
+		target_link_libraries(minecraftpe08decomp ${OPENAL_LIBRARY})
+	endif()
 	target_link_libraries(minecraftpe08decomp CURL::libcurl ZLIB::ZLIB ${OPENGL_LIBRARIES} ${SDL_LIBRARIES} oaes_lib RakNetStatic jsoncpp_lib utf8proc)
 endif()
