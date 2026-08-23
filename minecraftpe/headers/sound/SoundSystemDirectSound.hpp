@@ -8,9 +8,9 @@ struct SoundSystemDirectSound: public SoundSystem
 {
 	static const int MAX_PLAYED = 4;
 
-	LPDIRECTSOUNDBUFFER buffers[MAX_PLAYED] = {0};
-	LPDIRECTSOUND8 dsound = 0;
-	int playedCnt = 0;
+	LPDIRECTSOUNDBUFFER buffers[MAX_PLAYED];
+	LPDIRECTSOUND8 dsound;
+	int playedCnt;
 
 	SoundSystemDirectSound(void);
 	virtual ~SoundSystemDirectSound();
