@@ -1,15 +1,15 @@
 #pragma once
 #ifdef __WIN32__
 #include <_types.h>
-#include <dsound.h>
 #include <sound/SoundSystem.hpp>
+#include <mmsystem.h>
+
+struct WaveOutInstance;
 
 struct SoundSystemDirectSound: public SoundSystem
 {
-	static const int MAX_PLAYED = 4;
+	static const int MAX_PLAYED = 8;
 
-	LPDIRECTSOUNDBUFFER buffers[MAX_PLAYED];
-	LPDIRECTSOUND8 dsound;
 	int playedCnt;
 
 	SoundSystemDirectSound(void);
