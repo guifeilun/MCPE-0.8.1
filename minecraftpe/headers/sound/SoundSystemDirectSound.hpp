@@ -2,9 +2,6 @@
 #ifdef __WIN32__
 #include <_types.h>
 #include <sound/SoundSystem.hpp>
-#include <mmsystem.h>
-
-struct WaveOutInstance;
 
 struct SoundSystemDirectSound: public SoundSystem
 {
