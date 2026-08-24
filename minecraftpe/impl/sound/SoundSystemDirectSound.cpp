@@ -17,7 +17,7 @@
 #include <sound/SoundDesc.hpp>
 #include <sounddata.hpp>
 
-#define MAX_WAVE_OUT 8
+#define MAX_WAVE_OUT 4
 
 struct WaveOutInstance {
 	HWAVEOUT hWaveOut;
@@ -94,7 +94,6 @@ static DWORD WINAPI SoundThreadProc(LPVOID lpParam) {
 			
 			if(req.volume > 0) {
 				float vol = req.volume > 1.0f ? 1.0f : req.volume;
-				vol *= 0.35f;
 				waveOutSetVolume(g_instances[slot].hWaveOut, MAKELONG((DWORD)(vol * 0xFFFF), (DWORD)(vol * 0xFFFF)));
 			}
 			
@@ -152,7 +151,7 @@ void SoundSystemDirectSound::stop(const std::string&) {}
 
 void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float a4, float a5, float a6, float a7) {
 	EnterCriticalSection(&g_cs);
-	if(g_requestQueue.size() >= 16) {
+	if(g_requestQueue.size() >= 4) {
 		LeaveCriticalSection(&g_cs);
 		return;
 	}
