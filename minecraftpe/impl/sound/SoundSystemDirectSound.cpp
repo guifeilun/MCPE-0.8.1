@@ -1,14 +1,20 @@
 #ifdef __WIN32__
-#include <sound/SoundSystemDirectSound.hpp>
-#include <sound/SoundDesc.hpp>
-#include <math.h>
-#include <sounddata.hpp>
+
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+
 #include <windows.h>
 #include <mmsystem.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #pragma comment(lib, "winmm.lib")
+
+#include <sound/SoundSystemDirectSound.hpp>
+#include <sound/SoundDesc.hpp>
+#include <sounddata.hpp>
 
 #define MAX_WAVE_OUT 8
 
@@ -23,21 +29,19 @@ struct WaveOutInstance {
 
 static WaveOutInstance g_instances[MAX_WAVE_OUT];
 static CRITICAL_SECTION g_cs;
+static BOOL g_initialized = FALSE;
+
+static void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2);
 
 SoundSystemDirectSound::SoundSystemDirectSound(void) {
 	this->playedCnt = 0;
-	static BOOL initialized = FALSE;
-	if(!initialized) {
+	
+	if(!g_initialized) {
 		for(int i = 0; i < MAX_WAVE_OUT; ++i) {
-			g_instances[i].hWaveOut = NULL;
-			g_instances[i].pData = NULL;
-			g_instances[i].dataSize = 0;
-			g_instances[i].playing = FALSE;
-			g_instances[i].stopped = FALSE;
-			ZeroMemory(&g_instances[i].waveHdr, sizeof(WAVEHDR));
+			ZeroMemory(&g_instances[i], sizeof(WaveOutInstance));
 		}
 		InitializeCriticalSection(&g_cs);
-		initialized = TRUE;
+		g_initialized = TRUE;
 	}
 }
 
@@ -118,23 +122,12 @@ void SoundSystemDirectSound::removeStoppedSounds(void) {
 	LeaveCriticalSection(&g_cs);
 }
 
-void SoundSystemDirectSound::setListenerPos(float a, float b, float c) {
-}
-
-void SoundSystemDirectSound::setListenerAngle(float a) {
-}
-
-void SoundSystemDirectSound::load(const std::string&) {
-}
-
-void SoundSystemDirectSound::play(const std::string&) {
-}
-
-void SoundSystemDirectSound::pause(const std::string&) {
-}
-
-void SoundSystemDirectSound::stop(const std::string&) {
-}
+void SoundSystemDirectSound::setListenerPos(float a, float b, float c) {}
+void SoundSystemDirectSound::setListenerAngle(float a) {}
+void SoundSystemDirectSound::load(const std::string&) {}
+void SoundSystemDirectSound::play(const std::string&) {}
+void SoundSystemDirectSound::pause(const std::string&) {}
+void SoundSystemDirectSound::stop(const std::string&) {}
 
 void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float a4, float a5, float a6, float a7) {
 	this->removeStoppedSounds();
@@ -168,11 +161,12 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	}
 	
 	WAVEFORMATEX wf;
+	ZeroMemory(&wf, sizeof(WAVEFORMATEX));
 	wf.wFormatTag = WAVE_FORMAT_PCM;
 	wf.nSamplesPerSec = a2.sampleRate;
 	wf.wBitsPerSample = 8 * a2.bytesPerSample;
 	wf.nChannels = a2.channels;
-	wf.nBlockAlign = a2.channels * a2.bytesPerSample;
+	wf.nBlockAlign = wf.nChannels * (wf.wBitsPerSample / 8);
 	wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
 	wf.cbSize = 0;
 	
