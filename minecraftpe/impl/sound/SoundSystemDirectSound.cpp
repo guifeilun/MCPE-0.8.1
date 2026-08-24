@@ -16,20 +16,25 @@
 
 #define MAX_WAVE_OUT 8
 
-struct WaveOutInstance {
-	HWAVEOUT hWaveOut;
-	WAVEHDR waveHdr;
-	LPBYTE pData;
-};
-
 struct SoundKey {
-	DWORD size, rate, channels, bits;
+	DWORD size;
+	DWORD rate;
+	DWORD channels;
+	DWORD bits;
+	
 	bool operator<(const SoundKey& o) const {
 		if(size != o.size) return size < o.size;
 		if(rate != o.rate) return rate < o.rate;
 		if(channels != o.channels) return channels < o.channels;
 		return bits < o.bits;
 	}
+};
+
+struct WaveOutInstance {
+	HWAVEOUT hWaveOut;
+	WAVEHDR waveHdr;
+	LPBYTE pData;
+	SoundKey key;
 };
 
 static WaveOutInstance inst[MAX_WAVE_OUT];
@@ -148,7 +153,12 @@ void SoundSystemDirectSound::pause(const std::string&) {}
 void SoundSystemDirectSound::stop(const std::string&) {}
 
 static SoundKey makeKey(const SoundDesc& a) {
-	return {a.field_4, a.sampleRate, a.channels, a.bytesPerSample};
+	SoundKey key;
+	key.size = (DWORD)a.field_4;
+	key.rate = (DWORD)a.sampleRate;
+	key.channels = (DWORD)a.channels;
+	key.bits = (DWORD)a.bytesPerSample;
+	return key;
 }
 
 void SoundSystemDirectSound::playAt(const SoundDesc& a, float, float, float, float vol, float) {
