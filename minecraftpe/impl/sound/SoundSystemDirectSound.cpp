@@ -7,14 +7,13 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <queue>
-#include <map>
 
 #pragma comment(lib, "winmm.lib")
 
 #include <sound/SoundSystemDirectSound.hpp>
 #include <sound/SoundDesc.hpp>
 
-#define MAX_WAVE_OUT 4
+#define MAX_WAVE_OUT 8
 
 struct SoundKey {
 	DWORD size, rate, channels, bits;
@@ -43,7 +42,6 @@ struct SoundRequest {
 
 static WaveOutInstance g_instances[MAX_WAVE_OUT];
 static std::queue<SoundRequest> g_requestQueue;
-static std::map<SoundKey, int> g_playingCount;
 static HANDLE g_hThread = NULL;
 static HANDLE g_hEvent = NULL;
 static volatile BOOL g_running = FALSE;
@@ -53,13 +51,6 @@ static void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, 
 	if(uMsg == WOM_DONE) {
 		for(int i = 0; i < MAX_WAVE_OUT; ++i) {
 			if(g_instances[i].hWaveOut == hwo) {
-				if(g_instances[i].pData) {
-					auto it = g_playingCount.find(g_instances[i].key);
-					if(it != g_playingCount.end()) {
-						it->second--;
-						if(it->second <= 0) g_playingCount.erase(it);
-					}
-				}
 				g_instances[i].hWaveOut = NULL;
 				break;
 			}
@@ -154,7 +145,6 @@ SoundSystemDirectSound::~SoundSystemDirectSound() {
 			waveOutClose(g_instances[i].hWaveOut);
 		}
 	}
-	g_playingCount.clear();
 }
 
 bool_t SoundSystemDirectSound::checkErr(uint32_t a2) { return a2 ? 1 : 0; }
@@ -182,12 +172,18 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	
 	EnterCriticalSection(&g_cs);
 	
-	if(g_playingCount[key] >= 1) {
+	int count = 0;
+	for(int i = 0; i < MAX_WAVE_OUT; ++i) {
+		if(g_instances[i].hWaveOut != NULL && g_instances[i].key == key) {
+			count++;
+		}
+	}
+	if(count >= 2) {
 		LeaveCriticalSection(&g_cs);
 		return;
 	}
 	
-	if(g_requestQueue.size() >= 4) {
+	if(g_requestQueue.size() >= 10) {
 		LeaveCriticalSection(&g_cs);
 		return;
 	}
@@ -214,7 +210,6 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	req.wf.nBlockAlign = req.wf.nChannels * (req.wf.wBitsPerSample / 8);
 	req.wf.nAvgBytesPerSec = req.wf.nSamplesPerSec * req.wf.nBlockAlign;
 	
-	g_playingCount[key]++;
 	g_requestQueue.push(req);
 	LeaveCriticalSection(&g_cs);
 	
