@@ -10,7 +10,6 @@
 #include <string.h>
 #include <math.h>
 #include <queue>
-#include <vector>
 
 #pragma comment(lib, "winmm.lib")
 
@@ -18,7 +17,7 @@
 #include <sound/SoundDesc.hpp>
 #include <sounddata.hpp>
 
-#define MAX_WAVE_OUT 16
+#define MAX_WAVE_OUT 8
 
 struct WaveOutInstance {
 	HWAVEOUT hWaveOut;
@@ -31,7 +30,6 @@ struct SoundRequest {
 	DWORD dataSize;
 	WAVEFORMATEX wf;
 	float volume;
-	int slot;
 };
 
 static WaveOutInstance g_instances[MAX_WAVE_OUT];
@@ -153,6 +151,13 @@ void SoundSystemDirectSound::pause(const std::string&) {}
 void SoundSystemDirectSound::stop(const std::string&) {}
 
 void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float a4, float a5, float a6, float a7) {
+	EnterCriticalSection(&g_cs);
+	if(g_requestQueue.size() >= 16) {
+		LeaveCriticalSection(&g_cs);
+		return;
+	}
+	LeaveCriticalSection(&g_cs);
+	
 	DWORD dataSize = a2.field_4;
 	LPBYTE pData = (LPBYTE)malloc(dataSize);
 	if(!pData) return;
@@ -170,7 +175,6 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	req.wf.nChannels = a2.channels;
 	req.wf.nBlockAlign = req.wf.nChannels * (req.wf.wBitsPerSample / 8);
 	req.wf.nAvgBytesPerSec = req.wf.nSamplesPerSec * req.wf.nBlockAlign;
-	req.slot = -1;
 	
 	EnterCriticalSection(&g_cs);
 	g_requestQueue.push(req);
