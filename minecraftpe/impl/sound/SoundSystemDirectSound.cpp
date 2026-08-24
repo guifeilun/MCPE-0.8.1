@@ -17,11 +17,19 @@
 
 struct SoundKey {
 	DWORD size, rate, channels, bits;
+	
 	bool operator<(const SoundKey& o) const {
 		if(size != o.size) return size < o.size;
 		if(rate != o.rate) return rate < o.rate;
 		if(channels != o.channels) return channels < o.channels;
 		return bits < o.bits;
+	}
+
+	bool operator==(const SoundKey& o) const {
+		return size == o.size && 
+		       rate == o.rate && 
+		       channels == o.channels && 
+		       bits == o.bits;
 	}
 };
 
@@ -171,7 +179,7 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	SoundKey key = MakeSoundKey(a2);
 	
 	EnterCriticalSection(&g_cs);
-	
+
 	int count = 0;
 	for(int i = 0; i < MAX_WAVE_OUT; ++i) {
 		if(g_instances[i].hWaveOut != NULL && g_instances[i].key == key) {
