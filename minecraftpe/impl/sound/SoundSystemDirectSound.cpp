@@ -14,7 +14,7 @@
 #include <sound/SoundSystemDirectSound.hpp>
 #include <sound/SoundDesc.hpp>
 
-#define MAX_WAVE_OUT 8
+#define MAX_WAVE_OUT 4
 
 struct SoundKey {
 	DWORD size, rate, channels, bits;
@@ -182,12 +182,12 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	
 	EnterCriticalSection(&g_cs);
 	
-	if(g_playingCount[key] >= 2) {
+	if(g_playingCount[key] >= 1) {
 		LeaveCriticalSection(&g_cs);
 		return;
 	}
 	
-	if(g_requestQueue.size() >= 20) {
+	if(g_requestQueue.size() >= 4) {
 		LeaveCriticalSection(&g_cs);
 		return;
 	}
