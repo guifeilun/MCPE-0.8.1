@@ -6,18 +6,15 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include <queue>
+#include <map>
 
 #pragma comment(lib, "winmm.lib")
 
 #include <sound/SoundSystemDirectSound.hpp>
 #include <sound/SoundDesc.hpp>
-#include <sounddata.hpp>
 
-#define MAX_WAVE_OUT 4
+#define MAX_WAVE_OUT 8
 
 struct WaveOutInstance {
 	HWAVEOUT hWaveOut;
@@ -25,160 +22,148 @@ struct WaveOutInstance {
 	LPBYTE pData;
 };
 
-struct SoundRequest {
-	LPBYTE pData;
-	DWORD dataSize;
-	WAVEFORMATEX wf;
-	float volume;
+struct SoundKey {
+	DWORD size, rate, channels, bits;
+	bool operator<(const SoundKey& o) const {
+		if(size != o.size) return size < o.size;
+		if(rate != o.rate) return rate < o.rate;
+		if(channels != o.channels) return channels < o.channels;
+		return bits < o.bits;
+	}
 };
 
-static WaveOutInstance g_instances[MAX_WAVE_OUT];
-static std::queue<SoundRequest> g_requestQueue;
-static HANDLE g_hThread = NULL;
-static HANDLE g_hEvent = NULL;
-static volatile BOOL g_running = FALSE;
-static CRITICAL_SECTION g_cs;
+static WaveOutInstance inst[MAX_WAVE_OUT];
+static std::queue<std::pair<SoundKey, LPBYTE>> q;
+static std::map<SoundKey, int> cnt;
+static HANDLE thread = NULL, event = NULL;
+static volatile BOOL running = FALSE;
+static CRITICAL_SECTION cs;
 
-static void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
-	if(uMsg == WOM_DONE) {
+static void CALLBACK done(HWAVEOUT hwo, UINT msg, DWORD_PTR a, DWORD_PTR b, DWORD_PTR c) {
+	if(msg == WOM_DONE) {
 		for(int i = 0; i < MAX_WAVE_OUT; ++i) {
-			if(g_instances[i].hWaveOut == hwo) {
-				g_instances[i].hWaveOut = NULL;
+			if(inst[i].hWaveOut == hwo) {
+				if(inst[i].pData) {
+					auto it = cnt.find(inst[i].key);
+					if(it != cnt.end() && --it->second <= 0) cnt.erase(it);
+				}
+				inst[i].hWaveOut = NULL;
 				break;
 			}
 		}
 	}
 }
 
-static DWORD WINAPI SoundThreadProc(LPVOID lpParam) {
-	while(g_running) {
-		WaitForSingleObject(g_hEvent, INFINITE);
-		
-		while(!g_requestQueue.empty()) {
-			EnterCriticalSection(&g_cs);
-			SoundRequest req = g_requestQueue.front();
-			g_requestQueue.pop();
-			LeaveCriticalSection(&g_cs);
+static DWORD WINAPI threadProc(LPVOID) {
+	while(running) {
+		WaitForSingleObject(event, INFINITE);
+		while(!q.empty()) {
+			EnterCriticalSection(&cs);
+			auto req = q.front(); q.pop();
+			LeaveCriticalSection(&cs);
 			
 			int slot = -1;
 			for(int i = 0; i < MAX_WAVE_OUT; ++i) {
-				if(g_instances[i].hWaveOut == NULL) {
-					slot = i;
-					break;
-				}
+				if(inst[i].hWaveOut == NULL) { slot = i; break; }
 			}
-			if(slot == -1) {
-				free(req.pData);
+			if(slot == -1) { free(req.second); continue; }
+			
+			WAVEFORMATEX wf = {0};
+			wf.wFormatTag = WAVE_FORMAT_PCM;
+			wf.nSamplesPerSec = 44100;
+			wf.wBitsPerSample = 16;
+			wf.nChannels = 2;
+			wf.nBlockAlign = 4;
+			wf.nAvgBytesPerSec = 176400;
+			
+			if(waveOutOpen(&inst[slot].hWaveOut, WAVE_MAPPER, &wf, (DWORD_PTR)done, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
+				free(req.second);
+				inst[slot].hWaveOut = NULL;
 				continue;
 			}
 			
-			MMRESULT result = waveOutOpen(&g_instances[slot].hWaveOut, WAVE_MAPPER, &req.wf, (DWORD_PTR)waveOutProc, 0, CALLBACK_FUNCTION);
-			if(result != MMSYSERR_NOERROR) {
-				free(req.pData);
-				g_instances[slot].hWaveOut = NULL;
+			inst[slot].pData = req.second;
+			inst[slot].key = req.first;
+			ZeroMemory(&inst[slot].waveHdr, sizeof(WAVEHDR));
+			inst[slot].waveHdr.lpData = (LPSTR)req.second;
+			inst[slot].waveHdr.dwBufferLength = 4096;
+			
+			if(waveOutPrepareHeader(inst[slot].hWaveOut, &inst[slot].waveHdr, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+				free(req.second);
+				inst[slot].pData = NULL;
+				waveOutClose(inst[slot].hWaveOut);
+				inst[slot].hWaveOut = NULL;
 				continue;
 			}
 			
-			g_instances[slot].pData = req.pData;
-			ZeroMemory(&g_instances[slot].waveHdr, sizeof(WAVEHDR));
-			g_instances[slot].waveHdr.lpData = (LPSTR)req.pData;
-			g_instances[slot].waveHdr.dwBufferLength = req.dataSize;
+			waveOutSetVolume(inst[slot].hWaveOut, 0xFFFF);
 			
-			if(waveOutPrepareHeader(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
-				free(req.pData);
-				g_instances[slot].pData = NULL;
-				waveOutClose(g_instances[slot].hWaveOut);
-				g_instances[slot].hWaveOut = NULL;
-				continue;
-			}
-			
-			if(req.volume > 0) {
-				float vol = req.volume > 1.0f ? 1.0f : req.volume;
-				waveOutSetVolume(g_instances[slot].hWaveOut, MAKELONG((DWORD)(vol * 0xFFFF), (DWORD)(vol * 0xFFFF)));
-			}
-			
-			if(waveOutWrite(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
-				waveOutUnprepareHeader(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR));
-				free(req.pData);
-				g_instances[slot].pData = NULL;
-				waveOutClose(g_instances[slot].hWaveOut);
-				g_instances[slot].hWaveOut = NULL;
+			if(waveOutWrite(inst[slot].hWaveOut, &inst[slot].waveHdr, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+				waveOutUnprepareHeader(inst[slot].hWaveOut, &inst[slot].waveHdr, sizeof(WAVEHDR));
+				free(req.second);
+				inst[slot].pData = NULL;
+				waveOutClose(inst[slot].hWaveOut);
+				inst[slot].hWaveOut = NULL;
 			}
 		}
 	}
 	return 0;
 }
 
-SoundSystemDirectSound::SoundSystemDirectSound(void) {
-	ZeroMemory(g_instances, sizeof(g_instances));
-	InitializeCriticalSection(&g_cs);
-	
-	g_running = TRUE;
-	g_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	g_hThread = CreateThread(NULL, 0, SoundThreadProc, NULL, 0, NULL);
+SoundSystemDirectSound::SoundSystemDirectSound() {
+	ZeroMemory(inst, sizeof(inst));
+	InitializeCriticalSection(&cs);
+	running = TRUE;
+	event = CreateEvent(NULL, FALSE, FALSE, NULL);
+	thread = CreateThread(NULL, 0, threadProc, NULL, 0, NULL);
 }
 
 SoundSystemDirectSound::~SoundSystemDirectSound() {
-	g_running = FALSE;
-	SetEvent(g_hEvent);
-	WaitForSingleObject(g_hThread, 1000);
-	CloseHandle(g_hThread);
-	CloseHandle(g_hEvent);
-	DeleteCriticalSection(&g_cs);
-	
+	running = FALSE;
+	SetEvent(event);
+	WaitForSingleObject(thread, 1000);
+	CloseHandle(thread); CloseHandle(event);
+	DeleteCriticalSection(&cs);
 	for(int i = 0; i < MAX_WAVE_OUT; ++i) {
-		if(g_instances[i].hWaveOut) {
-			waveOutReset(g_instances[i].hWaveOut);
-			if(g_instances[i].waveHdr.dwFlags & WHDR_PREPARED) {
-				waveOutUnprepareHeader(g_instances[i].hWaveOut, &g_instances[i].waveHdr, sizeof(WAVEHDR));
-			}
-			if(g_instances[i].pData) free(g_instances[i].pData);
-			waveOutClose(g_instances[i].hWaveOut);
+		if(inst[i].hWaveOut) {
+			waveOutReset(inst[i].hWaveOut);
+			if(inst[i].waveHdr.dwFlags & WHDR_PREPARED)
+				waveOutUnprepareHeader(inst[i].hWaveOut, &inst[i].waveHdr, sizeof(WAVEHDR));
+			if(inst[i].pData) free(inst[i].pData);
+			waveOutClose(inst[i].hWaveOut);
 		}
 	}
+	cnt.clear();
 }
 
-bool_t SoundSystemDirectSound::checkErr(uint32_t a2) { return a2 ? 1 : 0; }
-void SoundSystemDirectSound::destroy(void) {}
-void SoundSystemDirectSound::init(void) {}
-void SoundSystemDirectSound::removeStoppedSounds(void) {}
-void SoundSystemDirectSound::setListenerPos(float a, float b, float c) {}
-void SoundSystemDirectSound::setListenerAngle(float a) {}
+bool_t SoundSystemDirectSound::checkErr(uint32_t) { return 0; }
+void SoundSystemDirectSound::destroy() {}
+void SoundSystemDirectSound::init() {}
+void SoundSystemDirectSound::removeStoppedSounds() {}
+void SoundSystemDirectSound::setListenerPos(float,float,float) {}
+void SoundSystemDirectSound::setListenerAngle(float) {}
 void SoundSystemDirectSound::load(const std::string&) {}
 void SoundSystemDirectSound::play(const std::string&) {}
 void SoundSystemDirectSound::pause(const std::string&) {}
 void SoundSystemDirectSound::stop(const std::string&) {}
 
-void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float a4, float a5, float a6, float a7) {
-	EnterCriticalSection(&g_cs);
-	if(g_requestQueue.size() >= 4) {
-		LeaveCriticalSection(&g_cs);
-		return;
-	}
-	LeaveCriticalSection(&g_cs);
+static SoundKey makeKey(const SoundDesc& a) {
+	return {a.field_4, a.sampleRate, a.channels, a.bytesPerSample};
+}
+
+void SoundSystemDirectSound::playAt(const SoundDesc& a, float, float, float, float vol, float) {
+	SoundKey key = makeKey(a);
 	
-	DWORD dataSize = a2.field_4;
-	LPBYTE pData = (LPBYTE)malloc(dataSize);
-	if(!pData) return;
-	memcpy(pData, a2.field_0, dataSize);
+	EnterCriticalSection(&cs);
+	if(cnt[key] >= 2) { LeaveCriticalSection(&cs); return; }
 	
-	SoundRequest req;
-	req.pData = pData;
-	req.dataSize = dataSize;
-	req.volume = a6;
+	LPBYTE data = (LPBYTE)malloc(a.field_4);
+	if(!data) { LeaveCriticalSection(&cs); return; }
+	memcpy(data, a.field_0, a.field_4);
 	
-	ZeroMemory(&req.wf, sizeof(WAVEFORMATEX));
-	req.wf.wFormatTag = WAVE_FORMAT_PCM;
-	req.wf.nSamplesPerSec = a2.sampleRate;
-	req.wf.wBitsPerSample = 8 * a2.bytesPerSample;
-	req.wf.nChannels = a2.channels;
-	req.wf.nBlockAlign = req.wf.nChannels * (req.wf.wBitsPerSample / 8);
-	req.wf.nAvgBytesPerSec = req.wf.nSamplesPerSec * req.wf.nBlockAlign;
-	
-	EnterCriticalSection(&g_cs);
-	g_requestQueue.push(req);
-	LeaveCriticalSection(&g_cs);
-	
-	SetEvent(g_hEvent);
+	cnt[key]++;
+	q.push({key, data});
+	LeaveCriticalSection(&cs);
+	SetEvent(event);
 }
 #endif
