@@ -7,13 +7,15 @@
 #include <windows.h>
 #include <SDL/SDL_syswm.h>
 #include <unknwn.h>
+#include <string.h>
+#include <stdio.h>
 
 SoundSystemDirectSound::SoundSystemDirectSound(void) {
 	this->dsound = NULL;
+	this->playedCnt = 0;
 	for(int i = 0; i < MAX_PLAYED; ++i) {
 		this->buffers[i] = NULL;
 	}
-	this->playedCnt = 0;
 }
 
 SoundSystemDirectSound::~SoundSystemDirectSound() {
@@ -124,12 +126,11 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 	this->removeStoppedSounds();
 	
 	if(this->playedCnt >= MAX_PLAYED) {
-		// printf("No free sound slots, playedCnt=%d\n", this->playedCnt);
 		return;
 	}
 	
 	for(int i = 0; i < MAX_PLAYED; ++i) {
-		if(this->buffers[i]) continue;
+		if(this->buffers[i]) continue; 
 		
 		WAVEFORMATEX wf;
 		wf.wFormatTag = WAVE_FORMAT_PCM;
@@ -143,7 +144,7 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 		DSBUFFERDESC desc;
 		ZeroMemory(&desc, sizeof(desc));
 		desc.dwSize = sizeof(desc);
-		desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GLOBALFOCUS;
+		desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GLOBALFOCUS | DSBCAPS_GETCURRENTPOSITION2;
 		desc.dwBufferBytes = a2.field_4;
 		desc.dwReserved = 0;
 		desc.lpwfxFormat = &wf;
@@ -167,9 +168,19 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 		
 		void* bf = NULL;
 		DWORD bsize = 0;
-		hr = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
-		if(FAILED(hr) || !bf){
-			printf("Lock failed: %x\n", hr);
+		HRESULT lockResult = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
+
+		if(lockResult == DSERR_BUFFERLOST) {
+			hr = this->buffers[i]->Restore();
+			if(SUCCEEDED(hr)) {
+				lockResult = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
+			} else {
+				printf("Restore failed: %x\n", hr);
+			}
+		}
+		
+		if(FAILED(lockResult) || !bf){
+			printf("Lock failed: %x\n", lockResult);
 			this->buffers[i]->Release();
 			this->buffers[i] = NULL;
 			break;
@@ -197,6 +208,16 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 		this->buffers[i]->SetVolume(volume);
 		
 		hr = this->buffers[i]->Play(0, 0, 0);
+		if(hr == DSERR_BUFFERLOST) {
+			this->buffers[i]->Restore();
+			lockResult = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
+			if(SUCCEEDED(lockResult) && bf) {
+				memcpy(bf, a2.field_0, a2.field_4);
+				this->buffers[i]->Unlock(bf, bsize, NULL, 0);
+			}
+			hr = this->buffers[i]->Play(0, 0, 0);
+		}
+		
 		if(FAILED(hr)){
 			printf("Play failed: %x\n", hr);
 			this->buffers[i]->Release();
@@ -205,8 +226,7 @@ void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float 
 		}
 		
 		++this->playedCnt;
-		// printf("Sound playing on slot %d\n", i);
-		break;
+		break; 
 	}
 }
 #endif
