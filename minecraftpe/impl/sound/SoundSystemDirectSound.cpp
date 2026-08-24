@@ -3,18 +3,41 @@
 #include <sound/SoundDesc.hpp>
 #include <math.h>
 #include <sounddata.hpp>
-#include <winsock2.h>
 #include <windows.h>
-#include <SDL/SDL_syswm.h>
-#include <unknwn.h>
-#include <string.h>
+#include <mmsystem.h>
 #include <stdio.h>
+#include <string.h>
+
+#pragma comment(lib, "winmm.lib")
+
+#define MAX_WAVE_OUT 8
+
+struct WaveOutInstance {
+	HWAVEOUT hWaveOut;
+	WAVEHDR waveHdr;
+	LPBYTE pData;
+	DWORD dataSize;
+	BOOL playing;
+	BOOL stopped;
+};
+
+static WaveOutInstance g_instances[MAX_WAVE_OUT];
+static CRITICAL_SECTION g_cs;
 
 SoundSystemDirectSound::SoundSystemDirectSound(void) {
-	this->dsound = NULL;
 	this->playedCnt = 0;
-	for(int i = 0; i < MAX_PLAYED; ++i) {
-		this->buffers[i] = NULL;
+	static BOOL initialized = FALSE;
+	if(!initialized) {
+		for(int i = 0; i < MAX_WAVE_OUT; ++i) {
+			g_instances[i].hWaveOut = NULL;
+			g_instances[i].pData = NULL;
+			g_instances[i].dataSize = 0;
+			g_instances[i].playing = FALSE;
+			g_instances[i].stopped = FALSE;
+			ZeroMemory(&g_instances[i].waveHdr, sizeof(WAVEHDR));
+		}
+		InitializeCriticalSection(&g_cs);
+		initialized = TRUE;
 	}
 }
 
@@ -23,85 +46,76 @@ SoundSystemDirectSound::~SoundSystemDirectSound() {
 }
 
 bool_t SoundSystemDirectSound::checkErr(uint32_t a2) {
-	if(a2) {
-		return 1;
-	}
-	return 0;
+	return (a2 != 0) ? 1 : 0;
 }
 
 void SoundSystemDirectSound::destroy(void) {
-	for(int i = 0; i < MAX_PLAYED; ++i) {
-		if(this->buffers[i]) {
-			this->buffers[i]->Release();
-			this->buffers[i] = NULL;
+	EnterCriticalSection(&g_cs);
+	for(int i = 0; i < MAX_WAVE_OUT; ++i) {
+		if(g_instances[i].hWaveOut) {
+			waveOutReset(g_instances[i].hWaveOut);
+			if(g_instances[i].waveHdr.dwFlags & WHDR_PREPARED) {
+				waveOutUnprepareHeader(g_instances[i].hWaveOut, &g_instances[i].waveHdr, sizeof(WAVEHDR));
+			}
+			if(g_instances[i].pData) {
+				free(g_instances[i].pData);
+				g_instances[i].pData = NULL;
+			}
+			waveOutClose(g_instances[i].hWaveOut);
+			g_instances[i].hWaveOut = NULL;
+			g_instances[i].playing = FALSE;
+			g_instances[i].stopped = FALSE;
 		}
 	}
-	if(this->dsound) {
-		this->dsound->Release();
-		this->dsound = NULL;
-	}
 	this->playedCnt = 0;
-	printf("DirectSound destroyed\n");
+	LeaveCriticalSection(&g_cs);
+	printf("WaveOut destroyed\n");
+}
+
+static void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
+	if(uMsg == WOM_DONE) {
+		for(int i = 0; i < MAX_WAVE_OUT; ++i) {
+			if(g_instances[i].hWaveOut == hwo) {
+				g_instances[i].playing = FALSE;
+				g_instances[i].stopped = TRUE;
+				break;
+			}
+		}
+	}
 }
 
 void SoundSystemDirectSound::init(void) {
-	HRESULT hr = DirectSoundCreate8(NULL, &this->dsound, NULL);
-	if(FAILED(hr)){
-		printf("DirectSoundCreate8 failed: %x\n", hr);
-		this->dsound = NULL;
+	int devCount = waveOutGetNumDevs();
+	if(devCount == 0) {
+		printf("No WaveOut devices available!\n");
 		return;
 	}
-	printf("DirectSoundCreate8 succeeded\n");
-	
-	HWND wnd = NULL;
-	
-	SDL_SysWMinfo info;
-	if (SDL_GetWMInfo(&info)) {
-		wnd = info.window;
-		printf("Got window handle via SDL_GetWMInfo: %p\n", wnd);
-	}
-	
-	if (!wnd) {
-		wnd = GetForegroundWindow();
-		if (wnd) {
-			printf("Got window handle via GetForegroundWindow: %p\n", wnd);
-		}
-	}
-	
-	if (!wnd) {
-		wnd = GetDesktopWindow();
-		printf("Falling back to desktop window: %p\n", wnd);
-	}
-	
-	hr = this->dsound->SetCooperativeLevel(wnd, DSSCL_NORMAL);
-	if(FAILED(hr)){
-		printf("SetCooperativeLevel failed: %x\n", hr);
-		this->dsound->Release();
-		this->dsound = NULL;
-		return;
-	}
-	
-	printf("DirectSound initialized successfully with window: %p\n", wnd);
+	printf("WaveOut initialized, %d device(s) available\n", devCount);
 }
 
 void SoundSystemDirectSound::removeStoppedSounds(void) {
-	this->playedCnt = 0;
-	for(int i = 0; i < MAX_PLAYED; ++i) {
-		if(!this->buffers[i]) continue;
-		DWORD status;
-		HRESULT hr = this->buffers[i]->GetStatus(&status);
-		if(FAILED(hr)) {
-			this->buffers[i]->Release();
-			this->buffers[i] = NULL;
-			continue;
+	EnterCriticalSection(&g_cs);
+	int count = 0;
+	for(int i = 0; i < MAX_WAVE_OUT; ++i) {
+		if(g_instances[i].hWaveOut && g_instances[i].stopped) {
+			if(g_instances[i].waveHdr.dwFlags & WHDR_PREPARED) {
+				waveOutUnprepareHeader(g_instances[i].hWaveOut, &g_instances[i].waveHdr, sizeof(WAVEHDR));
+			}
+			if(g_instances[i].pData) {
+				free(g_instances[i].pData);
+				g_instances[i].pData = NULL;
+			}
+			waveOutClose(g_instances[i].hWaveOut);
+			g_instances[i].hWaveOut = NULL;
+			g_instances[i].playing = FALSE;
+			g_instances[i].stopped = FALSE;
 		}
-		if(status & DSBSTATUS_PLAYING){
-			++this->playedCnt;
-		}else{
-			this->buffers[i]->Release();
-			this->buffers[i] = NULL;
+		if(g_instances[i].hWaveOut && g_instances[i].playing) {
+			++count;
 		}
 	}
+	this->playedCnt = count;
+	LeaveCriticalSection(&g_cs);
 }
 
 void SoundSystemDirectSound::setListenerPos(float a, float b, float c) {
@@ -125,108 +139,102 @@ void SoundSystemDirectSound::stop(const std::string&) {
 void SoundSystemDirectSound::playAt(const struct SoundDesc& a2, float a3, float a4, float a5, float a6, float a7) {
 	this->removeStoppedSounds();
 	
-	if(this->playedCnt >= MAX_PLAYED) {
+	EnterCriticalSection(&g_cs);
+	
+	int slot = -1;
+	for(int i = 0; i < MAX_WAVE_OUT; ++i) {
+		if(g_instances[i].hWaveOut == NULL || g_instances[i].stopped) {
+			slot = i;
+			break;
+		}
+	}
+	
+	if(slot == -1) {
+		LeaveCriticalSection(&g_cs);
 		return;
 	}
 	
-	for(int i = 0; i < MAX_PLAYED; ++i) {
-		if(this->buffers[i]) continue; 
-		
-		WAVEFORMATEX wf;
-		wf.wFormatTag = WAVE_FORMAT_PCM;
-		wf.nSamplesPerSec = a2.sampleRate;
-		wf.wBitsPerSample = 8 * a2.bytesPerSample;
-		wf.nChannels = a2.channels;
-		wf.nBlockAlign = a2.channels * a2.bytesPerSample;
-		wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
-		wf.cbSize = 0;
-		
-		DSBUFFERDESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.dwSize = sizeof(desc);
-		desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_GLOBALFOCUS | DSBCAPS_GETCURRENTPOSITION2;
-		desc.dwBufferBytes = a2.field_4;
-		desc.dwReserved = 0;
-		desc.lpwfxFormat = &wf;
-		desc.guid3DAlgorithm = GUID_NULL;
-		
-		LPDIRECTSOUNDBUFFER tmp = NULL;
-		HRESULT hr = this->dsound->CreateSoundBuffer(&desc, &tmp, NULL);
-		if(FAILED(hr)){
-			printf("CreateSoundBuffer failed: %x (channels=%d, sampleRate=%d, bytes=%d)\n", 
-			       hr, a2.channels, a2.sampleRate, a2.field_4);
-			break;
+	if(g_instances[slot].hWaveOut) {
+		waveOutReset(g_instances[slot].hWaveOut);
+		if(g_instances[slot].waveHdr.dwFlags & WHDR_PREPARED) {
+			waveOutUnprepareHeader(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR));
 		}
-		
-		hr = tmp->QueryInterface(IID_IDirectSoundBuffer8, (void**)&this->buffers[i]);
-		if(FAILED(hr)){
-			printf("QueryInterface for IDirectSoundBuffer8 failed: %x\n", hr);
-			tmp->Release();
-			break;
+		if(g_instances[slot].pData) {
+			free(g_instances[slot].pData);
+			g_instances[slot].pData = NULL;
 		}
-		tmp->Release();
-		
-		void* bf = NULL;
-		DWORD bsize = 0;
-		HRESULT lockResult = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
-
-		if(lockResult == DSERR_BUFFERLOST) {
-			hr = this->buffers[i]->Restore();
-			if(SUCCEEDED(hr)) {
-				lockResult = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
-			} else {
-				printf("Restore failed: %x\n", hr);
-			}
-		}
-		
-		if(FAILED(lockResult) || !bf){
-			printf("Lock failed: %x\n", lockResult);
-			this->buffers[i]->Release();
-			this->buffers[i] = NULL;
-			break;
-		}
-		
-		memcpy(bf, a2.field_0, a2.field_4);
-		
-		hr = this->buffers[i]->Unlock(bf, bsize, NULL, 0);
-		if(FAILED(hr)){
-			printf("Unlock failed: %x\n", hr);
-			this->buffers[i]->Release();
-			this->buffers[i] = NULL;
-			break;
-		}
-		
-		LONG volume;
-		if(a6 <= 0) {
-			volume = DSBVOLUME_MIN;
-		} else {
-			float vol = a6 > 1.0f ? 1.0f : a6;
-			volume = (LONG)(2000.0f * log10f(vol) + 0.5f);
-			if(volume < DSBVOLUME_MIN) volume = DSBVOLUME_MIN;
-			if(volume > DSBVOLUME_MAX) volume = DSBVOLUME_MAX;
-		}
-		this->buffers[i]->SetVolume(volume);
-		
-		hr = this->buffers[i]->Play(0, 0, 0);
-		if(hr == DSERR_BUFFERLOST) {
-			this->buffers[i]->Restore();
-			lockResult = this->buffers[i]->Lock(0, a2.field_4, &bf, &bsize, NULL, 0, 0);
-			if(SUCCEEDED(lockResult) && bf) {
-				memcpy(bf, a2.field_0, a2.field_4);
-				this->buffers[i]->Unlock(bf, bsize, NULL, 0);
-			}
-			hr = this->buffers[i]->Play(0, 0, 0);
-		}
-		
-		if(FAILED(hr)){
-			printf("Play failed: %x\n", hr);
-			this->buffers[i]->Release();
-			this->buffers[i] = NULL;
-			break;
-		}
-		
-		++this->playedCnt;
-		break; 
+		waveOutClose(g_instances[slot].hWaveOut);
+		g_instances[slot].hWaveOut = NULL;
 	}
+	
+	WAVEFORMATEX wf;
+	wf.wFormatTag = WAVE_FORMAT_PCM;
+	wf.nSamplesPerSec = a2.sampleRate;
+	wf.wBitsPerSample = 8 * a2.bytesPerSample;
+	wf.nChannels = a2.channels;
+	wf.nBlockAlign = a2.channels * a2.bytesPerSample;
+	wf.nAvgBytesPerSec = wf.nSamplesPerSec * wf.nBlockAlign;
+	wf.cbSize = 0;
+	
+	MMRESULT result = waveOutOpen(&g_instances[slot].hWaveOut, WAVE_MAPPER, &wf, (DWORD_PTR)waveOutProc, 0, CALLBACK_FUNCTION);
+	if(result != MMSYSERR_NOERROR) {
+		printf("waveOutOpen failed: %d\n", result);
+		g_instances[slot].hWaveOut = NULL;
+		LeaveCriticalSection(&g_cs);
+		return;
+	}
+	
+	DWORD dataSize = a2.field_4;
+	LPBYTE pData = (LPBYTE)malloc(dataSize);
+	if(!pData) {
+		printf("malloc failed\n");
+		waveOutClose(g_instances[slot].hWaveOut);
+		g_instances[slot].hWaveOut = NULL;
+		LeaveCriticalSection(&g_cs);
+		return;
+	}
+	memcpy(pData, a2.field_0, dataSize);
+	g_instances[slot].pData = pData;
+	g_instances[slot].dataSize = dataSize;
+	
+	ZeroMemory(&g_instances[slot].waveHdr, sizeof(WAVEHDR));
+	g_instances[slot].waveHdr.lpData = (LPSTR)pData;
+	g_instances[slot].waveHdr.dwBufferLength = dataSize;
+	g_instances[slot].waveHdr.dwFlags = 0;
+	g_instances[slot].waveHdr.dwLoops = 0;
+	
+	result = waveOutPrepareHeader(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR));
+	if(result != MMSYSERR_NOERROR) {
+		printf("waveOutPrepareHeader failed: %d\n", result);
+		free(pData);
+		g_instances[slot].pData = NULL;
+		waveOutClose(g_instances[slot].hWaveOut);
+		g_instances[slot].hWaveOut = NULL;
+		LeaveCriticalSection(&g_cs);
+		return;
+	}
+	
+	if(a6 > 0) {
+		DWORD vol = (DWORD)((a6 > 1.0f ? 1.0f : a6) * 0xFFFF);
+		waveOutSetVolume(g_instances[slot].hWaveOut, MAKELONG(vol, vol));
+	}
+	
+	result = waveOutWrite(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR));
+	if(result != MMSYSERR_NOERROR) {
+		printf("waveOutWrite failed: %d\n", result);
+		waveOutUnprepareHeader(g_instances[slot].hWaveOut, &g_instances[slot].waveHdr, sizeof(WAVEHDR));
+		free(pData);
+		g_instances[slot].pData = NULL;
+		waveOutClose(g_instances[slot].hWaveOut);
+		g_instances[slot].hWaveOut = NULL;
+		LeaveCriticalSection(&g_cs);
+		return;
+	}
+	
+	g_instances[slot].playing = TRUE;
+	g_instances[slot].stopped = FALSE;
+	++this->playedCnt;
+	
+	LeaveCriticalSection(&g_cs);
 }
 #endif
